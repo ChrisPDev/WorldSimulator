@@ -66,5 +66,21 @@ namespace WorldSim.UI.Views
                 SelectedCell = cell;
             }
         }
+
+        private void PlayPause_Click(object sender, RoutedEventArgs e)
+        {
+            if (DataContext is MainViewModel vm)
+            {
+                vm.ToggleSimulation();
+            }
+        }
+
+        private void ResetSimulation_Click(object sender, RoutedEventArgs e)
+        {
+            if (DataContext is MainViewModel vm)
+            {
+                vm.ResetSimulation();
+            }
+        }
     }
 }

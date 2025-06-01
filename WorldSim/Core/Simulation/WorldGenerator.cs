@@ -40,6 +40,7 @@ namespace WorldSim.Core.Simulation
             SeedContinents(map, landmassCount, minSize, maxSize);
 
             ClassifyInlandWater(map);
+            ApplyCoastalSand(map);
 
             return map;
         }
@@ -173,6 +174,42 @@ namespace WorldSim.Core.Simulation
                 if (nx >= 0 && nx < width && ny >= 0 && ny < height)
                 {
                     yield return (nx, ny);
+                }
+            }
+        }
+        private void ApplyCoastalSand(TerrainData[,] map)
+        {
+            int width = map.GetLength(0);
+            int height = map.GetLength(1);
+
+            for (int y  = 1; y < height; y++)
+            {
+                for (int x = 1;  x < width; x++)
+                {
+                    var cell = map[x, y];
+
+                    if (cell.Category == TerrainCategory.Land && cell.Type != TerrainSubtype.Sand)
+                    {
+                        bool isCoastal = false;
+
+                        if (map[x - 1, y].Category == TerrainCategory.Water ||
+                            map[x + 1, y].Category == TerrainCategory.Water ||
+                            map[x, y - 1].Category == TerrainCategory.Water ||
+                            map[x, y + 1].Category == TerrainCategory.Water)
+                        {
+                            isCoastal = true;
+                        }
+
+                        if(isCoastal)
+                        {
+                            double chance = 0.6 + _random.NextDouble() * 0.2;
+
+                            if (_random.NextDouble() < chance)
+                            {
+                                cell.Type = TerrainSubtype.Sand;
+                            }
+                        }
+                    }
                 }
             }
         }

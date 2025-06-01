@@ -3,12 +3,47 @@ using System.Collections.ObjectModel;
 using WorldSim.Config;
 using WorldSim.Core.Models;
 using WorldSim.Core.Managers;
+using WorldSim.Core.Simulation;
+using System.Windows.Threading;
+using System;
+using System.Threading;
 
 namespace WorldSim.UI.ViewModels
 {
     public class MainViewModel : INotifyPropertyChanged
     {
-        private readonly GridManager _gridManager = new GridManager();
+        private readonly SimulationClock _clock = new SimulationClock();
+        private readonly DispatcherTimer _timer = new DispatcherTimer();
+
+        private int _currentYear;
+        public int CurrentYear
+        {
+            get => _currentYear;
+            set
+            {
+                _currentYear = value;
+                OnPropertyChanged(nameof(CurrentYear));
+                OnPropertyChanged(nameof(SimulatorTitle));
+            }
+        }
+
+        private bool _isRunning = true;
+        public string PlayPauseLabel => _isRunning ? "Pause" : "Play";
+        private int _selectedYear;
+        public int SelectedYear
+        {
+            get => _selectedYear;
+            set
+            {
+                _selectedYear = value;
+                OnPropertyChanged(nameof(SelectedYear));
+            }
+        }
+
+        public string SimulatorTitle => $"World - Year: {CurrentYear}";
+
+        private readonly GridManager _gridManager;
+
         public ObservableCollection<CellData> VisibleCells { get; } = new ObservableCollection<CellData>();
 
         private int _currentChunkX = 0;
@@ -18,6 +53,15 @@ namespace WorldSim.UI.ViewModels
         
         public MainViewModel()
         {
+            _clock.OnTick += year => CurrentYear = year;
+            _timer.Interval = TimeSpan.FromSeconds(2);
+            _timer.Tick += (s, e) => _clock.Tick();
+            _timer.Start();
+
+            var worldGenerator = new WorldGenerator();
+            var globalTerrainMap = worldGenerator.GenerateWorld();
+            _gridManager = new GridManager(globalTerrainMap);
+
             LoadChunk(_currentChunkX, _currentChunkY);
         }
 
@@ -64,6 +108,30 @@ namespace WorldSim.UI.ViewModels
         protected void OnPropertyChanged(string propertyName)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        public void ToggleSimulation()
+        {
+            _isRunning = !_isRunning;
+            OnPropertyChanged(nameof(PlayPauseLabel));
+
+            if (_isRunning)
+            {
+                _timer.Start();
+            }
+            else
+            {
+                _timer.Stop();
+            }
+        }
+
+        public void ResetSimulation()
+        {
+            _timer.Stop();
+            _clock.Reset();
+            CurrentYear = 0;
+            SelectedYear = 0;
+            _timer.Start();
         }
     }
 }

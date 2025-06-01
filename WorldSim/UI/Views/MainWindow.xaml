@@ -72,7 +72,7 @@
             x:Name="SimulatorTitleLbl"
             Grid.Column="1"
             Grid.Row="1"
-            Content="World"
+            Content="{Binding SimulatorTitle}"
             Style="{StaticResource TitleTextStyle}"/>
         <Label
             x:Name="InfoPanel"
@@ -81,10 +81,10 @@
             Content="Info Panel"
             Style="{StaticResource TitleTextStyle}"/>
         <Label
-            x:Name="LogTitleLbl"
+            x:Name="ActionPanelTitleLbl"
             Grid.Column="3"
             Grid.Row="1"
-            Content="Log Panel"
+            Content="Action Panel"
             Style="{StaticResource TitleTextStyle}"/>
 
         <Border
@@ -178,7 +178,40 @@
                     Style="{StaticResource InfoTextStyle}"/>
             </StackPanel>
         </Border>
-        
+
+        <Border
+            x:Name="ActionPanelBorder"
+            Grid.Column="3"
+            Grid.Row="2"
+            Padding="10"
+            Style="{StaticResource BorderStyle}">
+
+            <StackPanel
+                x:Name="ActionPanelSP"
+                Orientation="Vertical">
+
+                <Button
+                    x:Name="PlayPause"
+                    Content="{Binding PlayPauseLabel}"
+                    Margin="0,0,0,10"
+                    Click="PlayPause_Click"/>
+
+                <Slider
+                    x:Name="PastTimeSlider"
+                    Minimum="0"
+                    Maximum="{Binding CurrenYear}"
+                    Value="{Binding SelectedYear, Mode=TwoWay}"
+                    TickFrequency="1"
+                    IsSnapToTickEnabled="True"
+                    Margin="0,0,0,10"/>
+
+                <Button
+                    x:Name="ResetSimulation"
+                    Content="Reset Simulation"
+                    Click="ResetSimulation_Click"/>
+            </StackPanel>
+        </Border>
+
         <Label
             x:Name="CoordinatesLbl"
             Grid.Column="1"

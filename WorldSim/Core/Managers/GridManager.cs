@@ -1,13 +1,18 @@
 ﻿using System.Collections.Generic;
 using WorldSim.Core.Models;
 using WorldSim.Config;
-using WorldSim.Core.Simulation;
 
 namespace WorldSim.Core.Managers
 {
     public class GridManager
     {
-        private readonly TerrainGenerator _terrainGenerator = new TerrainGenerator();
+        private readonly TerrainData[,] _globalTerrainMap;
+
+        public GridManager(TerrainData[,] globalTerrainMap)
+        {
+            _globalTerrainMap = globalTerrainMap;
+        }
+
         public Dictionary<(int, int), CellData[,]> ChunkCache { get; } = new Dictionary<(int, int), CellData[,]>();
 
         public CellData[,] GetOrCreateChunk(int chunkX, int chunkY)
@@ -18,17 +23,16 @@ namespace WorldSim.Core.Managers
             {
                 chunk = new CellData[GridConfig.ChunkSize, GridConfig.ChunkSize];
 
-                var terrainMap = _terrainGenerator.GenerateTerrainMap(GridConfig.ChunkSize, GridConfig.ChunkSize); // Replace later
-
                 for (int y = 0; y < GridConfig.ChunkSize; y++)
                 {
                     for (int x = 0; x < GridConfig.ChunkSize; x++)
                     {
-                        chunk[x, y] = CellFactory.Create(
-                            globalX: chunkX * GridConfig.ChunkSize + x,
-                            globalY: chunkY * GridConfig.ChunkSize + y,
-                            terrain: terrainMap[x, y]
-                        );
+                        int globalX = chunkX * GridConfig.ChunkSize + x;
+                        int globalY = chunkY * GridConfig.ChunkSize + y;
+
+                        var terrain = _globalTerrainMap[globalX, globalY];
+
+                        chunk[x, y] = CellFactory.Create(globalX, globalY, terrain);
                     }
                 }
 

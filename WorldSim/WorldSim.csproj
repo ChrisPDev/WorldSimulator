@@ -66,6 +66,7 @@
     <Compile Include="Config\TerrainColorConfig.cs" />
     <Compile Include="Core\Managers\CellFactory.cs" />
     <Compile Include="Core\Models\Evolvable.cs" />
+    <Compile Include="Core\Simulation\SimulationClock.cs" />
     <Compile Include="Core\Simulation\WorldGenerator.cs" />
     <Compile Include="UI\Controls\BindableUniformGrid.cs" />
     <Compile Include="Core\Models\CellData.cs" />
