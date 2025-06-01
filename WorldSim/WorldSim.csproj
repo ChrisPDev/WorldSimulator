@@ -51,19 +51,34 @@
     <Reference Include="PresentationFramework" />
   </ItemGroup>
   <ItemGroup>
-    <ApplicationDefinition Include="App.xaml">
+    <ApplicationDefinition Include="App\App.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Page Include="MainWindow.xaml">
+    <Page Include="UI\Views\MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Compile Include="App.xaml.cs">
+    <Compile Include="App\App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="MainWindow.xaml.cs">
+    <Compile Include="Config\TerrainColorConfig.cs" />
+    <Compile Include="Core\Managers\CellFactory.cs" />
+    <Compile Include="Core\Models\Evolvable.cs" />
+    <Compile Include="Core\Simulation\WorldGenerator.cs" />
+    <Compile Include="UI\Controls\BindableUniformGrid.cs" />
+    <Compile Include="Core\Models\CellData.cs" />
+    <Compile Include="Config\GridConfig.cs" />
+    <Compile Include="Core\Managers\GridManager.cs" />
+    <Compile Include="Core\Models\Enums.cs" />
+    <Compile Include="Core\Models\MineralData.cs" />
+    <Compile Include="Core\Simulation\TerrainColorConverter.cs" />
+    <Compile Include="Core\Models\TerrainData.cs" />
+    <Compile Include="Core\Simulation\TerrainGenerator.cs" />
+    <Compile Include="Core\Models\VegetationData.cs" />
+    <Compile Include="UI\ViewModels\MainViewModel.cs" />
+    <Compile Include="UI\Views\MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
@@ -92,7 +107,8 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <None Include="App.config" />
+    <None Include="App\App.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

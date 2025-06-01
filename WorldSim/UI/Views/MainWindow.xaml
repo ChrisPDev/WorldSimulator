@@ -1,0 +1,189 @@
+﻿<Window x:Class="WorldSim.UI.Views.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:WorldSim.App"
+        xmlns:simulation="clr-namespace:WorldSim.Core.Simulation"
+        xmlns:ui="clr-namespace:WorldSim.UI.Controls"
+        xmlns:vm="clr-namespace:WorldSim.UI.ViewModels"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="450" Width="800"
+        KeyDown="Window_KeyDown">
+    <Window.DataContext>
+        <vm:MainViewModel />
+    </Window.DataContext>
+    <Window.Resources>
+        <simulation:TerrainColorConverter x:Key="TerrainColorConverter"/>
+
+        <Style x:Key="InfoTextStyle" TargetType="TextBlock">
+            <Setter Property="FontFamily" Value="Tahoma"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="HorizontalAlignment" Value="Left"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Margin" Value="0,0,0,5"/>
+        </Style>
+        <Style x:Key="TitleTextStyle" TargetType="Label">
+            <Setter Property="FontFamily" Value="Tahoma"/>
+            <Setter Property="FontSize" Value="25"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+        <Style x:Key="BorderStyle" TargetType="Border">
+            <Setter Property="BorderBrush" Value="Black"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Margin" Value="10"/>
+        </Style>
+        <Style x:Key="SmallTitleTextStyle" TargetType="TextBlock">
+            <Setter Property="FontFamily" Value="Tahoma"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Margin" Value="0,0,0,10"/>
+        </Style>
+        <Style x:Key="SmallTitleTextStyleLbl" TargetType="Label">
+            <Setter Property="FontFamily" Value="Tahoma"/>
+            <Setter Property="FontSize" Value="15"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="HorizontalAlignment" Value="Left"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>            
+        </Style>
+    </Window.Resources>
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="25"/>
+            <ColumnDefinition Width="3*"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="25"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="25"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="7*"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="25"/>
+        </Grid.RowDefinitions>
+
+        <Label
+            x:Name="SimulatorTitleLbl"
+            Grid.Column="1"
+            Grid.Row="1"
+            Content="World"
+            Style="{StaticResource TitleTextStyle}"/>
+        <Label
+            x:Name="InfoPanel"
+            Grid.Column="2"
+            Grid.Row="1"
+            Content="Info Panel"
+            Style="{StaticResource TitleTextStyle}"/>
+        <Label
+            x:Name="LogTitleLbl"
+            Grid.Column="3"
+            Grid.Row="1"
+            Content="Log Panel"
+            Style="{StaticResource TitleTextStyle}"/>
+
+        <Border
+            x:Name="SimulatorBorder"
+            Grid.Column="1"
+            Grid.Row="2"
+            Style="{StaticResource BorderStyle}">
+
+            <ItemsControl
+                x:Name="Gridview"
+                ItemsSource="{Binding VisibleCells}"
+                HorizontalAlignment="Stretch"
+                VerticalAlignment="Stretch">
+
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <ui:BindableUniformGrid
+                            BindableRows="{Binding ChunkSize}"
+                            BindableColumns="{Binding ChunkSize}"/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Label
+                            Background="{Binding Terrain.Type, Converter={StaticResource TerrainColorConverter}}"
+                            MouseEnter="Cell_MouseEnter"
+                            BorderBrush="Gray"
+                            BorderThickness="0.5"
+                            HorizontalAlignment="Stretch"
+                            VerticalAlignment="Stretch"/>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </Border>
+
+        <Border
+            x:Name="InfoPanelBorder"
+            Grid.Column="2"
+            Grid.Row="2"
+            Padding="10"
+            Style="{StaticResource BorderStyle}">
+
+            <StackPanel
+                x:Name="InfoPanelSP"
+                DataContext="{Binding SelectedCell, RelativeSource={RelativeSource AncestorType=Window}}">
+
+                <TextBlock
+                    x:Name="InfoPanelTitleTB"
+                    Text="Cell Details"
+                    Style="{StaticResource SmallTitleTextStyle}"/>
+
+                <TextBlock
+                    x:Name="InfoPanelTerrainCategoryTB"
+                    Text="Category:"
+                    Style="{StaticResource InfoTextStyle}"/>
+
+                <TextBlock
+                    x:Name="InfoPanelTerrainCategoryBindTB"
+                    Text="{Binding Terrain.Category}"
+                    Style="{StaticResource InfoTextStyle}"/>
+
+                <TextBlock
+                    x:Name="InfoPanelTerrainSubtypeTB"
+                    Text="Subtype:"
+                    Style="{StaticResource InfoTextStyle}"/>
+
+                <TextBlock
+                    x:Name="InfoPanelTerrainSubtypeBindTB"
+                    Text="{Binding Terrain.Type}"
+                    Style="{StaticResource InfoTextStyle}"/>
+
+                <TextBlock
+                    x:Name="InfoPanelVegetationTB"
+                    Text="Vegetation:"
+                    Style="{StaticResource InfoTextStyle}"/>
+
+                <TextBlock
+                    x:Name="InfoPanelVegetationBindTB"
+                    Text="{Binding Vegetation.Type}"
+                    Style="{StaticResource InfoTextStyle}"/>
+
+                <TextBlock
+                    x:Name="InfoPanelMineralTB"
+                    Text="Mineral:"
+                    Style="{StaticResource InfoTextStyle}"/>
+
+                <TextBlock
+                    x:Name="InfoPanelMineralBindTB"
+                    Text="{Binding Mineral.Type}"
+                    Style="{StaticResource InfoTextStyle}"/>
+            </StackPanel>
+        </Border>
+        
+        <Label
+            x:Name="CoordinatesLbl"
+            Grid.Column="1"
+            Grid.Row="3"
+            Content="Coordinates: "
+            Style="{StaticResource SmallTitleTextStyleLbl}"/>
+    </Grid>
+</Window>
