@@ -14,6 +14,8 @@ namespace WorldSim.UI.ViewModels
     {
         private readonly SimulationClock _clock = new SimulationClock();
         private readonly DispatcherTimer _timer = new DispatcherTimer();
+        private readonly SimulationHistory _history = new SimulationHistory();
+        private readonly WorldGenerator _worldGenerator;
 
         private int _currentYear;
         public int CurrentYear
@@ -23,9 +25,15 @@ namespace WorldSim.UI.ViewModels
             {
                 _currentYear = value;
                 OnPropertyChanged(nameof(CurrentYear));
-                OnPropertyChanged(nameof(SimulatorTitle));
+
+                if (_isFollowingCurrentYear)
+                {
+                    SelectedYear = _currentYear;
+                }
             }
         }
+
+        private bool _isFollowingCurrentYear = true;
 
         private bool _isRunning = true;
         public string PlayPauseLabel => _isRunning ? "Pause" : "Play";
@@ -36,11 +44,13 @@ namespace WorldSim.UI.ViewModels
             set
             {
                 _selectedYear = value;
+                _isFollowingCurrentYear = (_selectedYear == CurrentYear);
                 OnPropertyChanged(nameof(SelectedYear));
+                OnPropertyChanged(nameof(SimulatorTitle));
             }
         }
 
-        public string SimulatorTitle => $"World - Year: {CurrentYear}";
+        public string SimulatorTitle => $"World - Viewing Year: {SelectedYear}";
 
         private readonly GridManager _gridManager;
 
@@ -53,16 +63,25 @@ namespace WorldSim.UI.ViewModels
         
         public MainViewModel()
         {
-            _clock.OnTick += year => CurrentYear = year;
+            _clock.OnTick += OnSimulationTick;
+            SelectedYear = 0;
             _timer.Interval = TimeSpan.FromSeconds(2);
             _timer.Tick += (s, e) => _clock.Tick();
             _timer.Start();
 
-            var worldGenerator = new WorldGenerator();
-            var globalTerrainMap = worldGenerator.GenerateWorld();
+            _worldGenerator = new WorldGenerator();
+            var globalTerrainMap = _worldGenerator.GenerateWorld();
             _gridManager = new GridManager(globalTerrainMap);
 
             LoadChunk(_currentChunkX, _currentChunkY);
+        }
+
+        private void OnSimulationTick(int year)
+        {
+            CurrentYear = year;
+
+            var state = _worldGenerator.GetWorldState();
+            _history.SaveSnapshot(year, state);
         }
 
         public void LoadChunk(int chunkX, int chunkY)
@@ -131,7 +150,34 @@ namespace WorldSim.UI.ViewModels
             _clock.Reset();
             CurrentYear = 0;
             SelectedYear = 0;
+
+            _isFollowingCurrentYear = true;
+            SelectedYear = CurrentYear;
+
             _timer.Start();
+        }
+
+        public void ResetToCurrentYear()
+        {
+            _isFollowingCurrentYear = true;
+            SelectedYear = CurrentYear;
+        }
+
+        public void AdjustSelectedYear(int delta)
+        {
+            int newYear = SelectedYear + delta;
+
+            if (newYear < 0)
+            {
+                newYear = 0;
+            }
+
+            if (newYear > CurrentYear)
+            {
+                newYear = CurrentYear;
+            }
+
+            SelectedYear = newYear;
         }
     }
 }

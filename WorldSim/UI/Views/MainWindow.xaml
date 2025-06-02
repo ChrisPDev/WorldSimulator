@@ -190,24 +190,113 @@
                 x:Name="ActionPanelSP"
                 Orientation="Vertical">
 
+                <TextBlock
+                    x:Name="TimeControlTitleTB"
+                    Text="Time Controls"
+                    Style="{StaticResource SmallTitleTextStyle}"/>
+
                 <Button
                     x:Name="PlayPause"
                     Content="{Binding PlayPauseLabel}"
                     Margin="0,0,0,10"
                     Click="PlayPause_Click"/>
 
-                <Slider
-                    x:Name="PastTimeSlider"
-                    Minimum="0"
-                    Maximum="{Binding CurrenYear}"
-                    Value="{Binding SelectedYear, Mode=TwoWay}"
-                    TickFrequency="1"
-                    IsSnapToTickEnabled="True"
-                    Margin="0,0,0,10"/>
+                <Label
+                    x:Name="BackButtonsTitleLbl"
+                    Content="Years backward"
+                    FontFamily="Tahoma"
+                    FontSize="12"
+                    FontWeight="Bold"
+                    HorizontalAlignment="Center"/>
+                
+                <StackPanel
+                    x:Name="BackButtonsSP"
+                    Orientation="Horizontal"
+                    HorizontalAlignment="Center"
+                    Margin="0,0,0,10">
+
+                    <Button
+                        x:Name="Back1Btn"
+                        Content="-1"
+                        Margin="2"
+                        Padding="2"
+                        Click="Back1Btn_Click"/>
+
+                    <Button
+                        x:Name="Back5Btn"
+                        Content="-5"
+                        Margin="2"
+                        Padding="2"
+                        Click="Back5Btn_Click"/>
+
+                    <Button
+                        x:Name="Back10Btn"
+                        Content="-10"
+                        Margin="2"
+                        Padding="2"
+                        Click="Back10Btn_Click"/>
+
+                    <Button
+                        x:Name="Back25Btn"
+                        Content="-25"
+                        Margin="2"
+                        Padding="2"
+                        Click="Back25Btn_Click"/>
+                </StackPanel>
+
+                <Label
+                    x:Name="ForwardButtonsTitleLbl"
+                    Content="Years forward"
+                    FontFamily="Tahoma"
+                    FontSize="12"
+                    FontWeight="Bold"
+                    HorizontalAlignment="Center"/>
+
+                <StackPanel
+                    x:Name="ForwardButtonsSP"
+                    Orientation="Horizontal"
+                    HorizontalAlignment="Center"
+                    Margin="0,0,0,10">
+
+                    <Button
+                        x:Name="Forward1Btn"
+                        Content="+1"
+                        Margin="2"
+                        Padding="2"
+                        Click="Forward1Btn_Click"/>
+
+                    <Button
+                        x:Name="Forward5Btn"
+                        Content="+5"
+                        Margin="2"
+                        Padding="2"
+                        Click="Forward5Btn_Click"/>
+
+                    <Button
+                        x:Name="Forward10Btn"
+                        Content="+10"
+                        Margin="2"
+                        Padding="2"
+                        Click="Forward10Btn_Click"/>
+
+                    <Button
+                        x:Name="Forward25Btn"
+                        Content="+25"
+                        Margin="2"
+                        Padding="2"
+                        Click="Forward25Btn_Click"/>
+                </StackPanel>
+
+                <Button
+                    x:Name="ResetToCurrentYear"
+                    Content="Current year"
+                    Margin="0,0,0,10"
+                    Click="ResetToCurrentYear_Click"/>
 
                 <Button
                     x:Name="ResetSimulation"
                     Content="Reset Simulation"
+                    Margin="0,0,0,10"
                     Click="ResetSimulation_Click"/>
             </StackPanel>
         </Border>

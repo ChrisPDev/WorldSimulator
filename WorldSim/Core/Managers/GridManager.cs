@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using WorldSim.Core.Models;
 using WorldSim.Config;
+using System.CodeDom;
 
 namespace WorldSim.Core.Managers
 {
@@ -39,6 +40,30 @@ namespace WorldSim.Core.Managers
                 ChunkCache[(chunkX, chunkY)] = chunk;
             }
             return chunk;
+        }
+
+        public TerrainData[,] GetGridSnapshot()
+        {
+            int width = _globalTerrainMap.GetLength(0);
+            int height = _globalTerrainMap.GetLength(1);
+            var copy = new TerrainData[width, height];
+
+            for (int y = 0; y < height; y++)
+            {
+                for (int x = 0; x < width; x++)
+                {
+                    var original = _globalTerrainMap[x, y];
+
+                    copy[x, y] = new TerrainData
+                    {
+                        Type = original.Type,
+                        Category = original.Category,
+                        Elevation = original.Elevation
+                    };
+                }
+            }
+
+            return copy;
         }
 
         private bool IsChunkInBounds(int x, int y) =>

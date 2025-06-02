@@ -67,7 +67,9 @@
     <Compile Include="Core\Managers\CellFactory.cs" />
     <Compile Include="Core\Models\Evolvable.cs" />
     <Compile Include="Core\Simulation\SimulationClock.cs" />
+    <Compile Include="Core\Simulation\SimulationHistory.cs" />
     <Compile Include="Core\Simulation\WorldGenerator.cs" />
+    <Compile Include="Core\Simulation\WorldState.cs" />
     <Compile Include="UI\Controls\BindableUniformGrid.cs" />
     <Compile Include="Core\Models\CellData.cs" />
     <Compile Include="Config\GridConfig.cs" />

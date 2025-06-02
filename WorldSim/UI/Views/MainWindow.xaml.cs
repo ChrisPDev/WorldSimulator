@@ -82,5 +82,30 @@ namespace WorldSim.UI.Views
                 vm.ResetSimulation();
             }
         }
+
+        private void Back1Btn_Click(object sender, RoutedEventArgs e) => AdjustYear(-1);
+        private void Back5Btn_Click(object sender, RoutedEventArgs e) => AdjustYear(-5);
+        private void Back10Btn_Click(object sender, RoutedEventArgs e) => AdjustYear(-10);
+        private void Back25Btn_Click(object sender, RoutedEventArgs e) => AdjustYear(-25);
+        private void Forward1Btn_Click(object sender, RoutedEventArgs e) => AdjustYear(1);
+        private void Forward5Btn_Click(object sender, RoutedEventArgs e) => AdjustYear(5);
+        private void Forward10Btn_Click(object sender, RoutedEventArgs e) => AdjustYear(10);
+        private void Forward25Btn_Click(object sender, RoutedEventArgs e) => AdjustYear(25);
+
+        private void ResetToCurrentYear_Click(object sender, RoutedEventArgs e)
+        {
+            if (DataContext is MainViewModel vm)
+            {
+                vm.ResetToCurrentYear();
+            }
+        }
+
+        private void AdjustYear(int delta)
+        {
+            if (DataContext is MainViewModel vm)
+            {
+                vm.AdjustSelectedYear(delta);
+            }
+        }
     }
 }

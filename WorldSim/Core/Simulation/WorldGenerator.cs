@@ -4,12 +4,14 @@ using WorldSim.Config;
 using System.Collections;
 using System.Collections.Generic;
 using System.Windows.Media;
+using WorldSim.Core.Managers;
 
 namespace WorldSim.Core.Simulation
 {
     public class WorldGenerator
     {
         private readonly Random _random = new Random();
+        private GridManager _gridManager;
 
         public TerrainData[,] GenerateWorld()
         {
@@ -42,7 +44,17 @@ namespace WorldSim.Core.Simulation
             ClassifyInlandWater(map);
             ApplyCoastalSand(map);
 
+            _gridManager = new GridManager(map);
+
             return map;
+        }
+
+        public WorldState GetWorldState()
+        {
+            return new WorldState
+            {
+                var terrain = _gridManager.GetGridSnapshot()
+            };
         }
 
         private void ClassifyInlandWater(TerrainData[,] map)
