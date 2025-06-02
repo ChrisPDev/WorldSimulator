@@ -11,6 +11,7 @@ namespace WorldSim.Core.Simulation
     public class WorldGenerator
     {
         private readonly Random _random = new Random();
+        private readonly List<(int x, int y)> _landmassSeeds = new List<(int x, int y)> ();
         private GridManager _gridManager;
 
         public TerrainData[,] GenerateWorld()
@@ -49,12 +50,18 @@ namespace WorldSim.Core.Simulation
             return map;
         }
 
-        public WorldState GetWorldState()
+        public WorldState GetWorldState(int year)
         {
-            return new WorldState
-            {
-                var terrain = _gridManager.GetGridSnapshot()
-            };
+            var terrain = _gridManager.GetGridSnapshot();
+            var vegetation = new VegetationData[terrain.GetLength(0), terrain.GetLength(1)];
+            var minerals = new MineralData[terrain.GetLength(0), terrain.GetLength(1)];
+
+            return new WorldState(year, terrain, vegetation, minerals);
+        }
+
+        public void LoadWorldState(WorldState state)
+        {
+            _gridManager = new GridManager(state.TerrainMap);
         }
 
         private void ClassifyInlandWater(TerrainData[,] map)
@@ -62,9 +69,9 @@ namespace WorldSim.Core.Simulation
             int width = map.GetLength(0);
             int height = map.GetLength(1);
 
-            for (int y = 1; y < height; y++)
+            for (int y = 1; y < height - 1; y++)
             {
-                for (int x = 1; x < width; x++)
+                for (int x = 1; x < width - 1; x++)
                 {
                     var cell = map[x, y];
 
@@ -109,6 +116,8 @@ namespace WorldSim.Core.Simulation
                 }
 
                 int landmassSize = _random.Next(minSize, maxSize);
+                _landmassSeeds.Add((seedX, seedY));
+
                 GrowLandmass(map, seedX, seedY, landmassSize);
             }
         }
@@ -225,5 +234,7 @@ namespace WorldSim.Core.Simulation
                 }
             }
         }
+
+        public IReadOnlyList<(int x, int y)> LandMassSeeds => _landmassSeeds.AsReadOnly();
     }
 }

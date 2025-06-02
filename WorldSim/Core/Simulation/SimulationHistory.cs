@@ -10,9 +10,9 @@ namespace WorldSim.Core.Simulation
     {
         private readonly Dictionary<int, WorldState> _history = new Dictionary<int, WorldState>();
 
-        public void SaveSnapshot(WorldState state)
+        public void SaveSnapshot(int year, WorldState state)
         {
-            _history[state.Year] = state;
+            _history[year] = state;
         }
 
         public WorldState LoadSnapshot(int year)

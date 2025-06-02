@@ -7,6 +7,7 @@ using WorldSim.Core.Simulation;
 using System.Windows.Threading;
 using System;
 using System.Threading;
+using System.Collections.Generic;
 
 namespace WorldSim.UI.ViewModels
 {
@@ -43,16 +44,64 @@ namespace WorldSim.UI.ViewModels
             get => _selectedYear;
             set
             {
+                if (_selectedYear == value)
+                {
+                    return;
+                }
+
                 _selectedYear = value;
                 _isFollowingCurrentYear = (_selectedYear == CurrentYear);
                 OnPropertyChanged(nameof(SelectedYear));
                 OnPropertyChanged(nameof(SimulatorTitle));
+
+                if (_selectedYear != CurrentYear)
+                {
+                    PauseSimulation();
+
+                    if (_history.HasSnapshot(_selectedYear))
+                    {
+                        var snapshot = _history.LoadSnapshot(_selectedYear);
+                        _worldGenerator.LoadWorldState(snapshot);
+                        LoadChunk(_currentChunkX, _currentChunkY);
+                    }
+                }
+                else
+                {
+                    ResumeSimulation();
+                }
             }
         }
 
         public string SimulatorTitle => $"World - Viewing Year: {SelectedYear}";
 
+        private bool _isTimeControlVisible = true;
+        public bool IsTimeControlVisible
+        {
+            get => _isTimeControlVisible;
+            set
+            {
+                if (_isTimeControlVisible != value)
+                {
+                    _isTimeControlVisible = value;
+                    OnPropertyChanged(nameof(IsTimeControlVisible));
+                    OnPropertyChanged(nameof(IsWorldNavControlVisible));
+                    OnPropertyChanged(nameof(CurrentPanelLabel));
+                }
+            }
+        }
+
+        public void TogglePanelButton()
+        {
+            IsTimeControlVisible = !IsTimeControlVisible;
+        }
+
+        public bool IsWorldNavControlVisible => !IsTimeControlVisible;
+
+        public string CurrentPanelLabel => IsTimeControlVisible ? "Switch to World Navigation" : "Switch to Time Control";
+
         private readonly GridManager _gridManager;
+
+        public IReadOnlyList<(int x, int y)> LandMassSeeds => _worldGenerator?.LandMassSeeds ?? new List<(int x, int y)>();
 
         public ObservableCollection<CellData> VisibleCells { get; } = new ObservableCollection<CellData>();
 
@@ -60,6 +109,23 @@ namespace WorldSim.UI.ViewModels
         private int _currentChunkY = 0;
 
         public int ChunkSize => GridConfig.ChunkSize;
+
+        private int _renderRadius = 1;
+        public int RenderRadius
+        {
+            get => _renderRadius;
+            set
+            {
+                if (_renderRadius != value)
+                {
+                    _renderRadius = value;
+                    OnPropertyChanged(nameof(RenderRadius));
+                    UpdateVisibleChunks();
+                }
+            }
+        }
+
+        public int MaxRenderRadius => Math.Min(GridConfig.WorldChunkWidth, GridConfig.WorldChunkHeight) / 2;
         
         public MainViewModel()
         {
@@ -71,16 +137,64 @@ namespace WorldSim.UI.ViewModels
 
             _worldGenerator = new WorldGenerator();
             var globalTerrainMap = _worldGenerator.GenerateWorld();
+            OnPropertyChanged(nameof(LandMassSeeds));
             _gridManager = new GridManager(globalTerrainMap);
 
             LoadChunk(_currentChunkX, _currentChunkY);
+        }
+
+        private void UpdateVisibleChunks()
+        {
+            VisibleCells.Clear();
+
+            int minChunkX = Math.Max(GridConfig.MinChunkX, _currentChunkX - RenderRadius);
+            int maxChunkX = Math.Min(GridConfig.MaxChunkX, _currentChunkX +  RenderRadius);
+            int minChunkY = Math.Max(GridConfig.MinChunkY, _currentChunkY - RenderRadius);
+            int maxChunkY = Math.Min(GridConfig.MaxChunkY, _currentChunkY + RenderRadius);
+
+            for (int chunkX = minChunkX; chunkX <= maxChunkX; chunkX++)
+            {
+                for (int chunkY = minChunkY; chunkY <= maxChunkY; chunkY++)
+                {
+                    var cells = GetCellsInChunk(chunkX, chunkY);
+                    foreach (var cell in cells)
+                    {
+                        VisibleCells.Add(cell);
+                    }
+                }
+            }
+        }
+
+        private IEnumerable<CellData> GetCellsInChunk(int chunkX, int chunkY)
+        {
+            int startX = chunkX * GridConfig.ChunkSize;
+            int startY = chunkY * GridConfig.ChunkSize;
+
+            for (int x = startX; x < startX + GridConfig.ChunkSize; x++)
+            {
+                for (int y = startY; y < startY + GridConfig.ChunkSize; y++)
+                {
+                    yield return _gridManager.GetCell(x, y);
+                }
+            }
+        }
+
+        public void CenterViewOnCoordinates(int x, int y)
+        {
+            int chunkX = x / GridConfig.ChunkSize;
+            int chunkY = y / GridConfig.ChunkSize;
+
+            _currentChunkX = chunkX;
+            _currentChunkY = chunkY;
+
+            LoadChunk(chunkX, chunkY);
         }
 
         private void OnSimulationTick(int year)
         {
             CurrentYear = year;
 
-            var state = _worldGenerator.GetWorldState();
+            var state = _worldGenerator.GetWorldState(year);
             _history.SaveSnapshot(year, state);
         }
 
@@ -144,9 +258,24 @@ namespace WorldSim.UI.ViewModels
             }
         }
 
+        private void PauseSimulation()
+        {
+            _timer.Stop();
+            _isRunning = false;
+            OnPropertyChanged(nameof(PlayPauseLabel));
+        }
+
+        private void ResumeSimulation()
+        {
+            _timer.Start();
+            _isRunning = true;
+            OnPropertyChanged(nameof(PlayPauseLabel));
+        }
+
         public void ResetSimulation()
         {
             _timer.Stop();
+            _history.Clear();
             _clock.Reset();
             CurrentYear = 0;
             SelectedYear = 0;

@@ -4,6 +4,7 @@ using System.Windows.Input;
 using WorldSim.UI.ViewModels;
 using WorldSim.Core.Models;
 using WorldSim.Config;
+using System;
 
 namespace WorldSim.UI.Views
 {
@@ -105,6 +106,28 @@ namespace WorldSim.UI.Views
             if (DataContext is MainViewModel vm)
             {
                 vm.AdjustSelectedYear(delta);
+            }
+        }
+
+        private void TogglePanelButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (DataContext is MainViewModel vm)
+            {
+                vm.TogglePanelButton();
+            }
+        }
+
+        private void LandmassSeedButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button button && button.DataContext is ValueTuple<int, int> seed)
+            {
+                int x = seed.Item1;
+                int y = seed.Item2;
+
+                if (DataContext is MainViewModel vm)
+                {
+                    vm.CenterViewOnCoordinates(x, y);
+                }
             }
         }
     }

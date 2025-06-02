@@ -6,14 +6,20 @@
         xmlns:local="clr-namespace:WorldSim.App"
         xmlns:simulation="clr-namespace:WorldSim.Core.Simulation"
         xmlns:ui="clr-namespace:WorldSim.UI.Controls"
+        xmlns:cvEnum="clr-namespace:WorldSim.UI.Converters"
+        xmlns:cvBool="clr-namespace:WorldSim.UI.Converters"
         xmlns:vm="clr-namespace:WorldSim.UI.ViewModels"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800"
+        WindowStyle="SingleBorderWindow"
+        WindowState="Maximized"
         KeyDown="Window_KeyDown">
     <Window.DataContext>
         <vm:MainViewModel />
     </Window.DataContext>
     <Window.Resources>
+        <cvEnum:EnumToVisibilityConverter x:Key="EnumToVisibilityConverter"/>
+        <cvBool:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
         <simulation:TerrainColorConverter x:Key="TerrainColorConverter"/>
 
         <Style x:Key="InfoTextStyle" TargetType="TextBlock">
@@ -49,7 +55,7 @@
             <Setter Property="FontSize" Value="15"/>
             <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="HorizontalAlignment" Value="Left"/>
-            <Setter Property="VerticalAlignment" Value="Center"/>            
+            <Setter Property="VerticalAlignment" Value="Center"/>
         </Style>
     </Window.Resources>
     <Grid>
@@ -130,6 +136,7 @@
 
             <StackPanel
                 x:Name="InfoPanelSP"
+                Margin="0,30,0,0"
                 DataContext="{Binding SelectedCell, RelativeSource={RelativeSource AncestorType=Window}}">
 
                 <TextBlock
@@ -139,43 +146,33 @@
 
                 <TextBlock
                     x:Name="InfoPanelTerrainCategoryTB"
-                    Text="Category:"
-                    Style="{StaticResource InfoTextStyle}"/>
+                    Style="{StaticResource InfoTextStyle}">
+                    <Run Text="Category: "/>
+                    <Run Text="{Binding Terrain.Category}"/>
+                </TextBlock>
 
                 <TextBlock
-                    x:Name="InfoPanelTerrainCategoryBindTB"
-                    Text="{Binding Terrain.Category}"
-                    Style="{StaticResource InfoTextStyle}"/>
-
-                <TextBlock
-                    x:Name="InfoPanelTerrainSubtypeTB"
-                    Text="Subtype:"
-                    Style="{StaticResource InfoTextStyle}"/>
-
-                <TextBlock
-                    x:Name="InfoPanelTerrainSubtypeBindTB"
-                    Text="{Binding Terrain.Type}"
-                    Style="{StaticResource InfoTextStyle}"/>
+                    x:Name="InfoPanelTerrainTB"
+                    Style="{StaticResource InfoTextStyle}">
+                    <Run Text="Terrain: "/>
+                    <Run Text="{Binding Terrain.Type}"/>
+                </TextBlock>
 
                 <TextBlock
                     x:Name="InfoPanelVegetationTB"
-                    Text="Vegetation:"
-                    Style="{StaticResource InfoTextStyle}"/>
-
-                <TextBlock
-                    x:Name="InfoPanelVegetationBindTB"
-                    Text="{Binding Vegetation.Type}"
-                    Style="{StaticResource InfoTextStyle}"/>
+                    Style="{StaticResource InfoTextStyle}"
+                    Visibility="{Binding Vegetation.Type, Converter={StaticResource EnumToVisibilityConverter}}">
+                    <Run Text="Vegetation: "/>
+                    <Run Text="{Binding Vegetation.Type}"/>
+                </TextBlock>
 
                 <TextBlock
                     x:Name="InfoPanelMineralTB"
-                    Text="Mineral:"
-                    Style="{StaticResource InfoTextStyle}"/>
-
-                <TextBlock
-                    x:Name="InfoPanelMineralBindTB"
-                    Text="{Binding Mineral.Type}"
-                    Style="{StaticResource InfoTextStyle}"/>
+                    Style="{StaticResource InfoTextStyle}"
+                    Visibility="{Binding Mineral.Type, Converter={StaticResource EnumToVisibilityConverter}}">
+                    <Run Text="Mineral: "/>
+                    <Run Text="{Binding Mineral.Type}"/>
+                </TextBlock>
             </StackPanel>
         </Border>
 
@@ -186,119 +183,121 @@
             Padding="10"
             Style="{StaticResource BorderStyle}">
 
-            <StackPanel
-                x:Name="ActionPanelSP"
-                Orientation="Vertical">
-
-                <TextBlock
-                    x:Name="TimeControlTitleTB"
-                    Text="Time Controls"
-                    Style="{StaticResource SmallTitleTextStyle}"/>
+            <Grid
+                x:Name="ActionPanelGrid">
 
                 <Button
-                    x:Name="PlayPause"
-                    Content="{Binding PlayPauseLabel}"
+                    x:Name="TogglePanelButton"
+                    Content="{Binding CurrentPanelLabel}"
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Top"
                     Margin="0,0,0,10"
-                    Click="PlayPause_Click"/>
-
-                <Label
-                    x:Name="BackButtonsTitleLbl"
-                    Content="Years backward"
-                    FontFamily="Tahoma"
-                    FontSize="12"
-                    FontWeight="Bold"
-                    HorizontalAlignment="Center"/>
-                
-                <StackPanel
-                    x:Name="BackButtonsSP"
-                    Orientation="Horizontal"
-                    HorizontalAlignment="Center"
-                    Margin="0,0,0,10">
-
-                    <Button
-                        x:Name="Back1Btn"
-                        Content="-1"
-                        Margin="2"
-                        Padding="2"
-                        Click="Back1Btn_Click"/>
-
-                    <Button
-                        x:Name="Back5Btn"
-                        Content="-5"
-                        Margin="2"
-                        Padding="2"
-                        Click="Back5Btn_Click"/>
-
-                    <Button
-                        x:Name="Back10Btn"
-                        Content="-10"
-                        Margin="2"
-                        Padding="2"
-                        Click="Back10Btn_Click"/>
-
-                    <Button
-                        x:Name="Back25Btn"
-                        Content="-25"
-                        Margin="2"
-                        Padding="2"
-                        Click="Back25Btn_Click"/>
-                </StackPanel>
-
-                <Label
-                    x:Name="ForwardButtonsTitleLbl"
-                    Content="Years forward"
-                    FontFamily="Tahoma"
-                    FontSize="12"
-                    FontWeight="Bold"
-                    HorizontalAlignment="Center"/>
+                    Click="TogglePanelButton_Click"/>
 
                 <StackPanel
-                    x:Name="ForwardButtonsSP"
-                    Orientation="Horizontal"
-                    HorizontalAlignment="Center"
-                    Margin="0,0,0,10">
+                    x:Name="TimeControlPanel"
+                    Visibility="{Binding IsTimeControlVisible, Converter={StaticResource BoolToVisibilityConverter}}"
+                    Margin="0,30,0,0">
+
+                    <TextBlock
+                        x:Name="TimeControlTitleTB"
+                        Text="Time Controls"
+                        Style="{StaticResource SmallTitleTextStyle}"/>
 
                     <Button
-                        x:Name="Forward1Btn"
-                        Content="+1"
-                        Margin="2"
-                        Padding="2"
-                        Click="Forward1Btn_Click"/>
+                        x:Name="PlayPause"
+                        Content="{Binding PlayPauseLabel}"
+                        Margin="0,0,0,10"
+                        Click="PlayPause_Click"/>
+
+                    <Label
+                        x:Name="BackButtonsTitleLbl"
+                        Content="Years backward"
+                        FontFamily="Tahoma"
+                        FontSize="12"
+                        FontWeight="Bold"
+                        HorizontalAlignment="Center"/>
+
+                    <UniformGrid
+                        Columns="4"
+                        HorizontalAlignment="Stretch"
+                        Margin="0,0,0,10">
+
+                        <Button Content="-1" Click="Back1Btn_Click" Margin="2" Padding="5"/>
+                        <Button Content="-5" Click="Back5Btn_Click" Margin="2" Padding="5"/>
+                        <Button Content="-10" Click="Back10Btn_Click" Margin="2" Padding="5"/>
+                        <Button Content="-25" Click="Back25Btn_Click" Margin="2" Padding="5"/>
+                    </UniformGrid>
+
+
+                    <Label
+                        x:Name="ForwardButtonsTitleLbl"
+                        Content="Years forward"
+                        FontFamily="Tahoma"
+                        FontSize="12"
+                        FontWeight="Bold"
+                        HorizontalAlignment="Center"/>
+
+                    <UniformGrid
+                        Columns="4"
+                        HorizontalAlignment="Stretch"
+                        Margin="0,0,0,10">
+
+                        <Button Content="+1" Click="Forward1Btn_Click" Margin="2" Padding="5"/>
+                        <Button Content="+5" Click="Forward5Btn_Click" Margin="2" Padding="5"/>
+                        <Button Content="+10" Click="Forward10Btn_Click" Margin="2" Padding="5"/>
+                        <Button Content="+25" Click="Forward25Btn_Click" Margin="2" Padding="5"/>
+                    </UniformGrid>
 
                     <Button
-                        x:Name="Forward5Btn"
-                        Content="+5"
-                        Margin="2"
-                        Padding="2"
-                        Click="Forward5Btn_Click"/>
+                        x:Name="ResetToCurrentYear"
+                        Content="Current year"
+                        Margin="0,0,0,10"
+                        Click="ResetToCurrentYear_Click"/>
 
                     <Button
-                        x:Name="Forward10Btn"
-                        Content="+10"
-                        Margin="2"
-                        Padding="2"
-                        Click="Forward10Btn_Click"/>
-
-                    <Button
-                        x:Name="Forward25Btn"
-                        Content="+25"
-                        Margin="2"
-                        Padding="2"
-                        Click="Forward25Btn_Click"/>
+                        x:Name="ResetSimulation"
+                        Content="Reset Simulation"
+                        Margin="0,0,0,10"
+                        Click="ResetSimulation_Click"/>
                 </StackPanel>
 
-                <Button
-                    x:Name="ResetToCurrentYear"
-                    Content="Current year"
-                    Margin="0,0,0,10"
-                    Click="ResetToCurrentYear_Click"/>
+                <StackPanel
+                    x:Name="WorldNavControlPanel"
+                    Visibility="{Binding IsWorldNavControlVisible, Converter={StaticResource BoolToVisibilityConverter}}"
+                    Margin="0,30,0,0">
 
-                <Button
-                    x:Name="ResetSimulation"
-                    Content="Reset Simulation"
-                    Margin="0,0,0,10"
-                    Click="ResetSimulation_Click"/>
-            </StackPanel>
+                    <TextBlock
+                        Text="Jump to Landmass Seed"
+                        Style="{StaticResource SmallTitleTextStyle}"/>
+
+                    <ItemsControl
+                        ItemsSource="{Binding LandMassSeeds}">
+                        
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Button
+                                    Content="{Binding}"
+                                    Margin="2"
+                                    Padding="5"
+                                    Click="LandmassSeedButton_Click"/>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
+                    <TextBlock
+                        Text="Zoom Level"
+                        Style="{StaticResource SmallTitleTextStyle}"/>
+
+                    <Slider
+                        Minimum="0"
+                        Maximum="{Binding MaxRenderRadius}"
+                        Value="{Binding RenderRadius, Mode=TwoWay}"
+                        TickFrequency="1"
+                        IsSnapToTickEnabled="True"
+                        Margin="0,5,0,0"/>
+                </StackPanel>
+            </Grid>
         </Border>
 
         <Label

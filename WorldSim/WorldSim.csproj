@@ -80,6 +80,8 @@
     <Compile Include="Core\Models\TerrainData.cs" />
     <Compile Include="Core\Simulation\TerrainGenerator.cs" />
     <Compile Include="Core\Models\VegetationData.cs" />
+    <Compile Include="UI\Converters\BoolToVisibilityConverter.cs" />
+    <Compile Include="UI\Converters\EnumToVisibilityConverter.cs" />
     <Compile Include="UI\ViewModels\MainViewModel.cs" />
     <Compile Include="UI\Views\MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
