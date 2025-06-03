@@ -69,7 +69,7 @@ namespace WorldSim.UI.Views
         /// </summary>
         private void Cell_MouseEnter(object sender, MouseEventArgs e)
         {
-            if (sender is Label label && label.DataContext is CellData cell)
+            if (sender is FrameworkElement element && element.Tag is CellData cell)
             {
                 int chunkX = cell.GlobalX / GridConfig.ChunkSize;
                 int chunkY = cell.GlobalY / GridConfig.ChunkSize;
@@ -138,5 +138,24 @@ namespace WorldSim.UI.Views
                 _viewModel?.CenterViewOnCoordinates(seed.Item1, seed.Item2);
             }
         }
+
+        private void SimulatorBorder_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            if (sender is Border border && border.Parent is Grid parentGrid)
+            {
+                // Get the actual width and height of the grid cell
+                double availableWidth = border.ActualWidth;
+                double availableHeight = parentGrid.RowDefinitions[2].ActualHeight;
+
+                // Use the smaller of the two to keep it square and visible
+                double size = Math.Min(availableWidth, availableHeight);
+
+                border.Width = size;
+                border.Height = size;
+            }
+        }
+
+
+
     }
 }

@@ -62,7 +62,7 @@
             <Setter Property="Padding" Value="5"/>
         </Style>
     </Window.Resources>
-    <Grid>
+    <Grid x:Name="MainGrid">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="25"/>
             <ColumnDefinition Width="3*"/>
@@ -84,7 +84,7 @@
         <Label x:Name="ActionPanelTitleLbl" Grid.Column="3" Grid.Row="1" Content="Action Panel" Style="{StaticResource TitleTextStyle}"/>
 
         <!-- Simulation Grid Panel -->
-        <Border x:Name="SimulatorBorder" Grid.Column="1" Grid.Row="2" Style="{StaticResource BorderStyle}">
+        <Border x:Name="SimulatorBorder" Grid.Column="1" Grid.Row="2" Style="{StaticResource BorderStyle}" Margin="0" SizeChanged="SimulatorBorder_SizeChanged" HorizontalAlignment="Stretch" VerticalAlignment="Center">
             <ItemsControl x:Name="Gridview" ItemsSource="{Binding VisibleCells}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
@@ -93,8 +93,9 @@
                 </ItemsControl.ItemsPanel>
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <Label Background="{Binding Terrain.Type, Converter={StaticResource TerrainColorConverter}}" MouseEnter="Cell_MouseEnter" BorderBrush="Gray" BorderThickness="0.5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+                        <Rectangle Fill="{Binding Terrain.Type, Converter={StaticResource TerrainColorConverter}}" Stroke="Gray" StrokeThickness="0.5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" MouseEnter="Cell_MouseEnter" Tag="{Binding}"/>
                     </DataTemplate>
+
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
         </Border>

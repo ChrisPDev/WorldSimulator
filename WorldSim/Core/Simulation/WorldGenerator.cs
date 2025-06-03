@@ -228,9 +228,9 @@ namespace WorldSim.Core.Simulation
             int width = map.GetLength(0);
             int height = map.GetLength(1);
 
-            for (int y = 1; y < height; y++)
+            for (int y = 1; y < height - 1; y++)
             {
-                for (int x = 1; x < width; x++)
+                for (int x = 1; x < width - 1; x++)
                 {
                     var cell = map[x, y];
 
