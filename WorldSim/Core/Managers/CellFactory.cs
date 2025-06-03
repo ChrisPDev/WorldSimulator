@@ -2,9 +2,12 @@
 
 namespace WorldSim.Core.Managers
 {
+    /// <summary>
+    /// Factory for creating new CellData instances with default values.
+    /// </summary>
     public static class CellFactory
     {
-        public static CellData Create(int globalX,  int globalY, TerrainData terrain)
+        public static CellData Create(int globalX, int globalY, TerrainData terrain)
         {
             return new CellData
             {

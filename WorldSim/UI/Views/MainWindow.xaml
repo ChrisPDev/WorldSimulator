@@ -22,12 +22,15 @@
         <cvBool:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
         <simulation:TerrainColorConverter x:Key="TerrainColorConverter"/>
 
-        <Style x:Key="InfoTextStyle" TargetType="TextBlock">
+        <!-- Reusable Styles -->
+        <Style x:Key="BaseTextStyle" TargetType="TextBlock">
             <Setter Property="FontFamily" Value="Tahoma"/>
             <Setter Property="FontSize" Value="12"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
             <Setter Property="HorizontalAlignment" Value="Left"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+        <Style x:Key="InfoTextStyle" BasedOn="{StaticResource BaseTextStyle}" TargetType="TextBlock">
+            <Setter Property="FontWeight" Value="SemiBold"/>
             <Setter Property="Margin" Value="0,0,0,5"/>
         </Style>
         <Style x:Key="TitleTextStyle" TargetType="Label">
@@ -42,12 +45,9 @@
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="Margin" Value="10"/>
         </Style>
-        <Style x:Key="SmallTitleTextStyle" TargetType="TextBlock">
-            <Setter Property="FontFamily" Value="Tahoma"/>
+        <Style x:Key="SmallTitleTextStyle" BasedOn="{StaticResource BaseTextStyle}" TargetType="TextBlock">
             <Setter Property="FontSize" Value="14"/>
             <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="HorizontalAlignment" Value="Center"/>
-            <Setter Property="VerticalAlignment" Value="Center"/>
             <Setter Property="Margin" Value="0,0,0,10"/>
         </Style>
         <Style x:Key="SmallTitleTextStyleLbl" TargetType="Label">
@@ -56,6 +56,10 @@
             <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="HorizontalAlignment" Value="Left"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+        <Style x:Key="ButtonStyle" TargetType="Button">
+            <Setter Property="Margin" Value="2"/>
+            <Setter Property="Padding" Value="5"/>
         </Style>
     </Window.Resources>
     <Grid>
@@ -74,213 +78,80 @@
             <RowDefinition Height="25"/>
         </Grid.RowDefinitions>
 
-        <Label
-            x:Name="SimulatorTitleLbl"
-            Grid.Column="1"
-            Grid.Row="1"
-            Content="{Binding SimulatorTitle}"
-            Style="{StaticResource TitleTextStyle}"/>
-        <Label
-            x:Name="InfoPanel"
-            Grid.Column="2"
-            Grid.Row="1"
-            Content="Info Panel"
-            Style="{StaticResource TitleTextStyle}"/>
-        <Label
-            x:Name="ActionPanelTitleLbl"
-            Grid.Column="3"
-            Grid.Row="1"
-            Content="Action Panel"
-            Style="{StaticResource TitleTextStyle}"/>
+        <!-- Header Labels -->
+        <Label x:Name="SimulatorTitleLbl" Grid.Column="1" Grid.Row="1" Content="{Binding SimulatorTitle}" Style="{StaticResource TitleTextStyle}"/>
+        <Label x:Name="InfoPanel" Grid.Column="2" Grid.Row="1" Content="Info Panel" Style="{StaticResource TitleTextStyle}"/>
+        <Label x:Name="ActionPanelTitleLbl" Grid.Column="3" Grid.Row="1" Content="Action Panel" Style="{StaticResource TitleTextStyle}"/>
 
-        <Border
-            x:Name="SimulatorBorder"
-            Grid.Column="1"
-            Grid.Row="2"
-            Style="{StaticResource BorderStyle}">
-
-            <ItemsControl
-                x:Name="Gridview"
-                ItemsSource="{Binding VisibleCells}"
-                HorizontalAlignment="Stretch"
-                VerticalAlignment="Stretch">
-
+        <!-- Simulation Grid Panel -->
+        <Border x:Name="SimulatorBorder" Grid.Column="1" Grid.Row="2" Style="{StaticResource BorderStyle}">
+            <ItemsControl x:Name="Gridview" ItemsSource="{Binding VisibleCells}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
-                        <ui:BindableUniformGrid
-                            BindableRows="{Binding ChunkSize}"
-                            BindableColumns="{Binding ChunkSize}"/>
+                        <ui:BindableUniformGrid BindableRows="{Binding ChunkSize}" BindableColumns="{Binding ChunkSize}"/>
                     </ItemsPanelTemplate>
                 </ItemsControl.ItemsPanel>
-
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <Label
-                            Background="{Binding Terrain.Type, Converter={StaticResource TerrainColorConverter}}"
-                            MouseEnter="Cell_MouseEnter"
-                            BorderBrush="Gray"
-                            BorderThickness="0.5"
-                            HorizontalAlignment="Stretch"
-                            VerticalAlignment="Stretch"/>
+                        <Label Background="{Binding Terrain.Type, Converter={StaticResource TerrainColorConverter}}" MouseEnter="Cell_MouseEnter" BorderBrush="Gray" BorderThickness="0.5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
         </Border>
 
-        <Border
-            x:Name="InfoPanelBorder"
-            Grid.Column="2"
-            Grid.Row="2"
-            Padding="10"
-            Style="{StaticResource BorderStyle}">
-
-            <StackPanel
-                x:Name="InfoPanelSP"
-                Margin="0,30,0,0"
-                DataContext="{Binding SelectedCell, RelativeSource={RelativeSource AncestorType=Window}}">
-
-                <TextBlock
-                    x:Name="InfoPanelTitleTB"
-                    Text="Cell Details"
-                    Style="{StaticResource SmallTitleTextStyle}"/>
-
-                <TextBlock
-                    x:Name="InfoPanelTerrainCategoryTB"
-                    Style="{StaticResource InfoTextStyle}">
+        <!-- Info Panel -->
+        <Border x:Name="InfoPanelBorder" Grid.Column="2" Grid.Row="2" Padding="10" Style="{StaticResource BorderStyle}">
+            <StackPanel x:Name="InfoPanelSP" Margin="0,30,0,0" DataContext="{Binding SelectedCell, RelativeSource={RelativeSource AncestorType=Window}}">
+                <TextBlock x:Name="InfoPanelTitleTB" Text="Cell Details" Style="{StaticResource SmallTitleTextStyle}"/>
+                <TextBlock x:Name="InfoPanelTerrainCategoryTB" Style="{StaticResource InfoTextStyle}">
                     <Run Text="Category: "/>
                     <Run Text="{Binding Terrain.Category}"/>
                 </TextBlock>
-
-                <TextBlock
-                    x:Name="InfoPanelTerrainTB"
-                    Style="{StaticResource InfoTextStyle}">
+                <TextBlock x:Name="InfoPanelTerrainTB" Style="{StaticResource InfoTextStyle}">
                     <Run Text="Terrain: "/>
                     <Run Text="{Binding Terrain.Type}"/>
                 </TextBlock>
-
-                <TextBlock
-                    x:Name="InfoPanelVegetationTB"
-                    Style="{StaticResource InfoTextStyle}"
-                    Visibility="{Binding Vegetation.Type, Converter={StaticResource EnumToVisibilityConverter}}">
+                <TextBlock x:Name="InfoPanelVegetationTB" Style="{StaticResource InfoTextStyle}" Visibility="{Binding Vegetation.Type, Converter={StaticResource EnumToVisibilityConverter}}">
                     <Run Text="Vegetation: "/>
                     <Run Text="{Binding Vegetation.Type}"/>
                 </TextBlock>
-
-                <TextBlock
-                    x:Name="InfoPanelMineralTB"
-                    Style="{StaticResource InfoTextStyle}"
-                    Visibility="{Binding Mineral.Type, Converter={StaticResource EnumToVisibilityConverter}}">
+                <TextBlock x:Name="InfoPanelMineralTB" Style="{StaticResource InfoTextStyle}" Visibility="{Binding Mineral.Type, Converter={StaticResource EnumToVisibilityConverter}}">
                     <Run Text="Mineral: "/>
                     <Run Text="{Binding Mineral.Type}"/>
                 </TextBlock>
             </StackPanel>
         </Border>
 
-        <Border
-            x:Name="ActionPanelBorder"
-            Grid.Column="3"
-            Grid.Row="2"
-            Padding="10"
-            Style="{StaticResource BorderStyle}">
-
-            <Grid
-                x:Name="ActionPanelGrid">
-
-                <Button
-                    x:Name="TogglePanelButton"
-                    Content="{Binding CurrentPanelLabel}"
-                    HorizontalAlignment="Right"
-                    VerticalAlignment="Top"
-                    Margin="0,0,0,10"
-                    Click="TogglePanelButton_Click"/>
-
-                <StackPanel
-                    x:Name="TimeControlPanel"
-                    Visibility="{Binding IsTimeControlVisible, Converter={StaticResource BoolToVisibilityConverter}}"
-                    Margin="0,30,0,0">
-
-                    <TextBlock
-                        x:Name="TimeControlTitleTB"
-                        Text="Time Controls"
-                        Style="{StaticResource SmallTitleTextStyle}"/>
-
-                    <Button
-                        x:Name="PlayPause"
-                        Content="{Binding PlayPauseLabel}"
-                        Margin="0,0,0,10"
-                        Click="PlayPause_Click"/>
-
-                    <Label
-                        x:Name="BackButtonsTitleLbl"
-                        Content="Years backward"
-                        FontFamily="Tahoma"
-                        FontSize="12"
-                        FontWeight="Bold"
-                        HorizontalAlignment="Center"/>
-
-                    <UniformGrid
-                        Columns="4"
-                        HorizontalAlignment="Stretch"
-                        Margin="0,0,0,10">
-
-                        <Button Content="-1" Click="Back1Btn_Click" Margin="2" Padding="5"/>
-                        <Button Content="-5" Click="Back5Btn_Click" Margin="2" Padding="5"/>
-                        <Button Content="-10" Click="Back10Btn_Click" Margin="2" Padding="5"/>
-                        <Button Content="-25" Click="Back25Btn_Click" Margin="2" Padding="5"/>
+        <!-- Action Panel -->
+        <Border x:Name="ActionPanelBorder" Grid.Column="3" Grid.Row="2" Padding="10" Style="{StaticResource BorderStyle}">
+            <Grid x:Name="ActionPanelGrid">
+                <Button x:Name="TogglePanelButton" Content="{Binding CurrentPanelLabel}" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,0,0,10" Click="TogglePanelButton_Click"/>
+                <StackPanel x:Name="TimeControlPanel" Visibility="{Binding IsTimeControlVisible, Converter={StaticResource BoolToVisibilityConverter}}" Margin="0,30,0,0">
+                    <TextBlock x:Name="TimeControlTitleTB" Text="Time Controls" Style="{StaticResource SmallTitleTextStyle}"/>
+                    <Button x:Name="PlayPause" Content="{Binding PlayPauseLabel}" Style="{StaticResource ButtonStyle}" Click="PlayPause_Click"/>
+                    <Label x:Name="BackButtonsTitleLbl" Content="Years backward" FontFamily="Tahoma" FontSize="12" FontWeight="Bold" HorizontalAlignment="Center"/>
+                    <UniformGrid Columns="4" HorizontalAlignment="Stretch" Margin="0,0,0,10">
+                        <Button Content="-1" Style="{StaticResource ButtonStyle}" Click="Back1Btn_Click"/>
+                        <Button Content="-5" Style="{StaticResource ButtonStyle}" Click="Back5Btn_Click"/>
+                        <Button Content="-10" Style="{StaticResource ButtonStyle}" Click="Back10Btn_Click"/>
+                        <Button Content="-25" Style="{StaticResource ButtonStyle}" Click="Back25Btn_Click"/>
                     </UniformGrid>
-
-
-                    <Label
-                        x:Name="ForwardButtonsTitleLbl"
-                        Content="Years forward"
-                        FontFamily="Tahoma"
-                        FontSize="12"
-                        FontWeight="Bold"
-                        HorizontalAlignment="Center"/>
-
-                    <UniformGrid
-                        Columns="4"
-                        HorizontalAlignment="Stretch"
-                        Margin="0,0,0,10">
-
-                        <Button Content="+1" Click="Forward1Btn_Click" Margin="2" Padding="5"/>
-                        <Button Content="+5" Click="Forward5Btn_Click" Margin="2" Padding="5"/>
-                        <Button Content="+10" Click="Forward10Btn_Click" Margin="2" Padding="5"/>
-                        <Button Content="+25" Click="Forward25Btn_Click" Margin="2" Padding="5"/>
+                    <Label x:Name="ForwardButtonsTitleLbl" Content="Years forward" FontFamily="Tahoma" FontSize="12" FontWeight="Bold" HorizontalAlignment="Center"/>
+                    <UniformGrid Columns="4" HorizontalAlignment="Stretch" Margin="0,0,0,10">
+                        <Button Content="+1" Style="{StaticResource ButtonStyle}" Click="Forward1Btn_Click"/>
+                        <Button Content="+5" Style="{StaticResource ButtonStyle}" Click="Forward5Btn_Click"/>
+                        <Button Content="+10" Style="{StaticResource ButtonStyle}" Click="Forward10Btn_Click"/>
+                        <Button Content="+25" Style="{StaticResource ButtonStyle}" Click="Forward25Btn_Click"/>
                     </UniformGrid>
-
-                    <Button
-                        x:Name="ResetToCurrentYear"
-                        Content="Current year"
-                        Margin="0,0,0,10"
-                        Click="ResetToCurrentYear_Click"/>
-
-                    <Button
-                        x:Name="ResetSimulation"
-                        Content="Reset Simulation"
-                        Margin="0,0,0,10"
-                        Click="ResetSimulation_Click"/>
+                    <Button x:Name="ResetToCurrentYear" Content="Current year" Style="{StaticResource ButtonStyle}" Click="ResetToCurrentYear_Click"/>
+                    <Button x:Name="ResetSimulation" Content="Reset Simulation" Style="{StaticResource ButtonStyle}" Click="ResetSimulation_Click"/>
                 </StackPanel>
-
-                <StackPanel
-                    x:Name="WorldNavControlPanel"
-                    Visibility="{Binding IsWorldNavControlVisible, Converter={StaticResource BoolToVisibilityConverter}}"
-                    Margin="0,30,0,0">
-
-                    <TextBlock
-                        Text="Jump to Landmass Seed"
-                        Style="{StaticResource SmallTitleTextStyle}"/>
-
-                    <ItemsControl
-                        ItemsSource="{Binding LandMassSeeds}">
-
+                <StackPanel x:Name="WorldNavControlPanel" Visibility="{Binding IsWorldNavControlVisible, Converter={StaticResource BoolToVisibilityConverter}}" Margin="0,30,0,0">
+                    <TextBlock Text="Jump to Landmass Seed" Style="{StaticResource SmallTitleTextStyle}"/>
+                    <ItemsControl ItemsSource="{Binding LandMassSeeds}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <Button
-                                    Content="{Binding}"
-                                    Margin="2"
-                                    Padding="5"
-                                    Click="LandmassSeedButton_Click"/>
+                                <Button Content="{Binding}" Style="{StaticResource ButtonStyle}" Click="LandmassSeedButton_Click"/>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
@@ -288,11 +159,7 @@
             </Grid>
         </Border>
 
-        <Label
-            x:Name="CoordinatesLbl"
-            Grid.Column="1"
-            Grid.Row="3"
-            Content="Coordinates: "
-            Style="{StaticResource SmallTitleTextStyleLbl}"/>
+        <!-- Footer Coordinates Label -->
+        <Label x:Name="CoordinatesLbl" Grid.Column="1" Grid.Row="3" Content="Coordinates: " Style="{StaticResource SmallTitleTextStyleLbl}"/>
     </Grid>
 </Window>

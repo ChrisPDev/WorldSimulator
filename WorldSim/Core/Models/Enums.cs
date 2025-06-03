@@ -1,11 +1,17 @@
 ﻿namespace WorldSim.Core.Models
 {
+    /// <summary>
+    /// High-level terrain classification.
+    /// </summary>
     public enum TerrainCategory
     {
         Land,
         Water
     }
-    
+
+    /// <summary>
+    /// Specific terrain types.
+    /// </summary>
     public enum TerrainSubtype
     {
         Soil,
@@ -14,6 +20,9 @@
         Freshwater
     }
 
+    /// <summary>
+    /// Types of vegetation that can exist in a cell.
+    /// </summary>
     public enum VegetationType
     {
         None,
@@ -23,6 +32,9 @@
         Tree
     }
 
+    /// <summary>
+    /// Types of minerals that can exist in a cell.
+    /// </summary>
     public enum MineralType
     {
         None,

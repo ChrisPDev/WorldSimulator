@@ -5,8 +5,15 @@ using System.Windows.Data;
 
 namespace WorldSim.UI.Converters
 {
+    /// <summary>
+    /// Converts an enum value to Visibility.
+    /// Returns Collapsed if the value is null or "None".
+    /// </summary>
     public class EnumToVisibilityConverter : IValueConverter
     {
+        /// <summary>
+        /// Converts an enum value to Visibility.
+        /// </summary>
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             if (value == null)
@@ -15,18 +22,17 @@ namespace WorldSim.UI.Converters
             }
 
             var stringValue = value.ToString();
-
-            if (stringValue.Equals("None", StringComparison.OrdinalIgnoreCase))
-            {
-                return Visibility.Collapsed;
-            }
-
-            return Visibility.Visible;
+            return stringValue.Equals("None", StringComparison.OrdinalIgnoreCase)
+                ? Visibility.Collapsed
+                : Visibility.Visible;
         }
 
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo Culture)
+        /// <summary>
+        /// ConvertBack is not supported.
+        /// </summary>
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            throw new NotSupportedException("ConvertBack is not supported for TerrainColorConverter.");
+            throw new NotSupportedException("ConvertBack is not supported for EnumToVisibilityConverter.");
         }
     }
 }

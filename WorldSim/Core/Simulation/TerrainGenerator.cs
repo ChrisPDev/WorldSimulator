@@ -1,14 +1,26 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Windows.Markup;
 using WorldSim.Core.Models;
 
 namespace WorldSim.Core.Simulation
 {
+    /// <summary>
+    /// Generates a terrain map with clustered land and water regions.
+    /// </summary>
     public class TerrainGenerator
     {
         private readonly Random _random = new Random();
 
+        /// <summary>
+        /// Generates a terrain map with a specified land-to-water ratio.
+        /// </summary>
+        /// <param name="width">Width of the map.</param>
+        /// <param name="height">Height of the map.</param>
+        /// <param name="landRatio">Proportion of land tiles (0.0 to 1.0).</param>
+        /// <returns>A 2D array of TerrainData representing the map.</returns>
         public TerrainData[,] GenerateTerrainMap(int width, int height, double landRatio = 0.3)
+
         {
             var map = InitializeMap(width, height, TerrainCategory.Water, TerrainSubtype.Saltwater);
 
@@ -20,6 +32,9 @@ namespace WorldSim.Core.Simulation
             return map;
         }
 
+        /// <summary>
+        /// Fills the map with clustered land tiles starting from a random seed.
+        /// </summary>
         private void GenerateClusteredLand(TerrainData[,] map, int width, int height, int landCellsTarget)
         {
             int landCells = 0;
@@ -33,7 +48,7 @@ namespace WorldSim.Core.Simulation
             while (stack.Count > 0 && landCells < landCellsTarget)
             {
                 var (x, y) = stack.Pop();
-                
+
                 if (map[x, y].Category == TerrainCategory.Water)
                 {
                     map[x, y] = new TerrainData
@@ -52,6 +67,9 @@ namespace WorldSim.Core.Simulation
             }
         }
 
+        /// <summary>
+        /// Returns the 4-directional neighbors of a cell within bounds.
+        /// </summary>
         private IEnumerable<(int x, int y)> GetNeighbors(int x, int y, int width, int height)
         {
             var directions = new (int dx, int dy)[]
@@ -59,7 +77,8 @@ namespace WorldSim.Core.Simulation
                 (-1, 0), (1, 0), (0, -1), (0, 1)
             };
 
-            foreach (var (dx, dy) in directions) {
+            foreach (var (dx, dy) in directions)
+            {
                 int nx = x + dx;
                 int ny = y + dy;
 
@@ -70,13 +89,16 @@ namespace WorldSim.Core.Simulation
             }
         }
 
+        /// <summary>
+        /// Initializes a terrain map with a default category and subtype.
+        /// </summary>
         private TerrainData[,] InitializeMap(int width, int height, TerrainCategory category, TerrainSubtype subtype)
         {
             var map = new TerrainData[width, height];
 
             for (int y = 0; y < height; y++)
             {
-                for (int x= 0;  x < width; x++)
+                for (int x = 0; x < width; x++)
                 {
                     map[x, y] = new TerrainData
                     {

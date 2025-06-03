@@ -2,8 +2,13 @@
 
 namespace WorldSim.Core.Models
 {
+    /// <summary>
+    /// Represents a single cell in the simulation grid.
+    /// </summary>
     public class CellData : INotifyPropertyChanged
     {
+        public event PropertyChangedEventHandler PropertyChanged;
+
         private int _globalX;
         public int GlobalX
         {
@@ -65,13 +70,10 @@ namespace WorldSim.Core.Models
             }
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        protected void OnPropertyChanged(string name)
-        {
+        protected void OnPropertyChanged(string name) =>
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
-        }
 
-        public override string ToString() => $"({GlobalX}, {GlobalY}) - {Terrain.Category}, {Terrain.Type}, {Vegetation.Type}, {Mineral.Type}";
+        public override string ToString() =>
+            $"({GlobalX}, {GlobalY}) - {Terrain.Category}, {Terrain.Type}, {Vegetation.Type}, {Mineral.Type}";
     }
 }

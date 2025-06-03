@@ -1,19 +1,23 @@
 ﻿using System;
+using System.Collections.Generic;
 using WorldSim.Core.Models;
 using WorldSim.Config;
-using System.Collections;
-using System.Collections.Generic;
-using System.Windows.Media;
 using WorldSim.Core.Managers;
 
 namespace WorldSim.Core.Simulation
 {
+    /// <summary>
+    /// Responsible for generating and managing the simulated world terrain.
+    /// </summary>
     public class WorldGenerator
     {
         private readonly Random _random = new Random();
-        private readonly List<(int x, int y)> _landmassSeeds = new List<(int x, int y)> ();
+        private readonly List<(int x, int y)> _landmassSeeds = new List<(int x, int y)>();
         private GridManager _gridManager;
 
+        /// <summary>
+        /// Generates a new world terrain map with landmasses and water bodies.
+        /// </summary>
         public TerrainData[,] GenerateWorld()
         {
             int width = GridConfig.ChunkSize * GridConfig.WorldChunkWidth;
@@ -21,6 +25,7 @@ namespace WorldSim.Core.Simulation
 
             var map = new TerrainData[width, height];
 
+            // Initialize all cells as saltwater
             for (int y = 0; y < height; y++)
             {
                 for (int x = 0; x < width; x++)
@@ -36,20 +41,20 @@ namespace WorldSim.Core.Simulation
 
             int totalCells = width * height;
             int landmassCount = (GridConfig.WorldChunkWidth / 6) * (GridConfig.WorldChunkHeight / 6);
-
             int minSize = totalCells / 120;
             int maxSize = totalCells / 40;
 
             SeedContinents(map, landmassCount, minSize, maxSize);
-
             ClassifyInlandWater(map);
             ApplyCoastalSand(map);
 
             _gridManager = new GridManager(map);
-
             return map;
         }
 
+        /// <summary>
+        /// Returns a snapshot of the current world state at a given year.
+        /// </summary>
         public WorldState GetWorldState(int year)
         {
             var terrain = _gridManager.GetGridSnapshot();
@@ -59,11 +64,17 @@ namespace WorldSim.Core.Simulation
             return new WorldState(year, terrain, vegetation, minerals);
         }
 
+        /// <summary>
+        /// Loads a previously saved world state into the generator.
+        /// </summary>
         public void LoadWorldState(WorldState state)
         {
             _gridManager = new GridManager(state.TerrainMap);
         }
 
+        /// <summary>
+        /// Converts isolated saltwater cells surrounded by land into freshwater.
+        /// </summary>
         private void ClassifyInlandWater(TerrainData[,] map)
         {
             int width = map.GetLength(0);
@@ -92,6 +103,9 @@ namespace WorldSim.Core.Simulation
             }
         }
 
+        /// <summary>
+        /// Seeds and grows landmasses across the map using random placement and expansion.
+        /// </summary>
         private void SeedContinents(TerrainData[,] map, int landmassCount, int minSize, int maxSize)
         {
             int width = map.GetLength(0);
@@ -108,12 +122,10 @@ namespace WorldSim.Core.Simulation
                     seedY = _random.Next(height / 10, height - height / 10);
                     attempts++;
                 }
-                while ((IsTooCloseToLand(map, seedX, seedY, 5)) && attempts < 100);
+                while (IsTooCloseToLand(map, seedX, seedY, 5) && attempts < 100);
 
                 if (attempts >= 100)
-                {
                     continue;
-                }
 
                 int landmassSize = _random.Next(minSize, maxSize);
                 _landmassSeeds.Add((seedX, seedY));
@@ -121,7 +133,9 @@ namespace WorldSim.Core.Simulation
                 GrowLandmass(map, seedX, seedY, landmassSize);
             }
         }
-
+        /// <summary>
+        /// Checks if a given coordinate is too close to existing land.
+        /// </summary>
         private bool IsTooCloseToLand(TerrainData[,] map, int x, int y, int minDistance)
         {
             int width = map.GetLength(0);
@@ -147,6 +161,9 @@ namespace WorldSim.Core.Simulation
             return false;
         }
 
+        /// <summary>
+        /// Expands a landmass from a seed point using a randomized flood-fill algorithm.
+        /// </summary>
         private void GrowLandmass(TerrainData[,] map, int startX, int startY, int maxTiles)
         {
             int width = map.GetLength(0);
@@ -182,6 +199,10 @@ namespace WorldSim.Core.Simulation
                 }
             }
         }
+
+        /// <summary>
+        /// Returns the 4-directional neighbors of a cell within bounds.
+        /// </summary>
         private IEnumerable<(int x, int y)> GetNeighbors(int x, int y, int width, int height)
         {
             int[] dx = { -1, 1, 0, 0 };
@@ -198,30 +219,30 @@ namespace WorldSim.Core.Simulation
                 }
             }
         }
+
+        /// <summary>
+        /// Applies sand terrain to land cells adjacent to water, simulating coastlines.
+        /// </summary>
         private void ApplyCoastalSand(TerrainData[,] map)
         {
             int width = map.GetLength(0);
             int height = map.GetLength(1);
 
-            for (int y  = 1; y < height; y++)
+            for (int y = 1; y < height; y++)
             {
-                for (int x = 1;  x < width; x++)
+                for (int x = 1; x < width; x++)
                 {
                     var cell = map[x, y];
 
                     if (cell.Category == TerrainCategory.Land && cell.Type != TerrainSubtype.Sand)
                     {
-                        bool isCoastal = false;
-
-                        if (map[x - 1, y].Category == TerrainCategory.Water ||
+                        bool isCoastal =
+                            map[x - 1, y].Category == TerrainCategory.Water ||
                             map[x + 1, y].Category == TerrainCategory.Water ||
                             map[x, y - 1].Category == TerrainCategory.Water ||
-                            map[x, y + 1].Category == TerrainCategory.Water)
-                        {
-                            isCoastal = true;
-                        }
+                            map[x, y + 1].Category == TerrainCategory.Water;
 
-                        if(isCoastal)
+                        if (isCoastal)
                         {
                             double chance = 0.6 + _random.NextDouble() * 0.2;
 
@@ -235,6 +256,9 @@ namespace WorldSim.Core.Simulation
             }
         }
 
+        /// <summary>
+        /// Gets a read-only list of all landmass seed coordinates used during generation.
+        /// </summary>
         public IReadOnlyList<(int x, int y)> LandMassSeeds => _landmassSeeds.AsReadOnly();
     }
 }
