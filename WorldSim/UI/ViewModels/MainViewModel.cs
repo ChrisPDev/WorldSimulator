@@ -109,23 +109,6 @@ namespace WorldSim.UI.ViewModels
         private int _currentChunkY = 0;
 
         public int ChunkSize => GridConfig.ChunkSize;
-
-        private int _renderRadius = 1;
-        public int RenderRadius
-        {
-            get => _renderRadius;
-            set
-            {
-                if (_renderRadius != value)
-                {
-                    _renderRadius = value;
-                    OnPropertyChanged(nameof(RenderRadius));
-                    UpdateVisibleChunks();
-                }
-            }
-        }
-
-        public int MaxRenderRadius => Math.Min(GridConfig.WorldChunkWidth, GridConfig.WorldChunkHeight) / 2;
         
         public MainViewModel()
         {
@@ -141,42 +124,6 @@ namespace WorldSim.UI.ViewModels
             _gridManager = new GridManager(globalTerrainMap);
 
             LoadChunk(_currentChunkX, _currentChunkY);
-        }
-
-        private void UpdateVisibleChunks()
-        {
-            VisibleCells.Clear();
-
-            int minChunkX = Math.Max(GridConfig.MinChunkX, _currentChunkX - RenderRadius);
-            int maxChunkX = Math.Min(GridConfig.MaxChunkX, _currentChunkX +  RenderRadius);
-            int minChunkY = Math.Max(GridConfig.MinChunkY, _currentChunkY - RenderRadius);
-            int maxChunkY = Math.Min(GridConfig.MaxChunkY, _currentChunkY + RenderRadius);
-
-            for (int chunkX = minChunkX; chunkX <= maxChunkX; chunkX++)
-            {
-                for (int chunkY = minChunkY; chunkY <= maxChunkY; chunkY++)
-                {
-                    var cells = GetCellsInChunk(chunkX, chunkY);
-                    foreach (var cell in cells)
-                    {
-                        VisibleCells.Add(cell);
-                    }
-                }
-            }
-        }
-
-        private IEnumerable<CellData> GetCellsInChunk(int chunkX, int chunkY)
-        {
-            int startX = chunkX * GridConfig.ChunkSize;
-            int startY = chunkY * GridConfig.ChunkSize;
-
-            for (int x = startX; x < startX + GridConfig.ChunkSize; x++)
-            {
-                for (int y = startY; y < startY + GridConfig.ChunkSize; y++)
-                {
-                    yield return _gridManager.GetCell(x, y);
-                }
-            }
         }
 
         public void CenterViewOnCoordinates(int x, int y)
