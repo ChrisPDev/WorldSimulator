@@ -30,6 +30,10 @@ namespace WorldSim.UI.ViewModels
         private int _currentChunkX = 0;
         private int _currentChunkY = 0;
 
+        private int _zoomLevel = 1;
+        private int _zoomCenterX;
+        private int _zoomCenterY;
+
         public event PropertyChangedEventHandler PropertyChanged;
 
         /// <summary>
@@ -136,6 +140,20 @@ namespace WorldSim.UI.ViewModels
         /// </summary>
         public IReadOnlyList<(int x, int y)> LandMassSeeds => _worldGenerator?.LandMassSeeds ?? new List<(int, int)>();
 
+        public int ZoomLevel
+        {
+            get => _zoomLevel;
+            set
+            {
+                if (_zoomLevel != value && value % 2 == 1)
+                {
+                    _zoomLevel = value;
+                    OnPropertyChanged(nameof(ZoomLevel));
+                    UpdateVisibleCells();
+                }
+            }
+        }
+
         /// <summary>
         /// Initializes the simulation and starts the timer.
         /// </summary>
@@ -154,6 +172,11 @@ namespace WorldSim.UI.ViewModels
 
             _gridManager = new GridManager(globalTerrainMap);
             LoadChunk(_currentChunkX, _currentChunkY);
+
+            _zoomCenterX = (GridConfig.WorldChunkWidth * GridConfig.ChunkSize) / 2;
+            _zoomCenterY = (GridConfig.WorldChunkHeight * GridConfig.ChunkSize) / 2;
+
+            UpdateVisibleCells();
         }
 
         /// <summary>
@@ -186,21 +209,12 @@ namespace WorldSim.UI.ViewModels
             _currentChunkX = chunkX;
             _currentChunkY = chunkY;
 
-            VisibleCells.Clear();
-
-            var chunk = _gridManager.GetOrCreateChunk(chunkX, chunkY);
-
-            for (int y = 0; y < ChunkSize; y++)
-            {
-                for (int x = 0; x < ChunkSize; x++)
-                {
-                    VisibleCells.Add(chunk[x, y]);
-                }
-            }
+            UpdateVisibleCells();
 
             OnPropertyChanged(nameof(_currentChunkX));
             OnPropertyChanged(nameof(_currentChunkY));
         }
+
 
         /// <summary>
         /// Moves the view to a neighboring chunk.
@@ -213,6 +227,12 @@ namespace WorldSim.UI.ViewModels
             if (!IsChunkInBounds(newX, newY)) return;
 
             LoadChunk(newX, newY);
+
+            _zoomCenterX = newX * GridConfig.ChunkSize + GridConfig.ChunkSize / 2;
+            _zoomCenterY = newY * GridConfig.ChunkSize + GridConfig.ChunkSize / 2;
+
+            UpdateVisibleCells();
+
         }
 
         /// <summary>
@@ -264,6 +284,39 @@ namespace WorldSim.UI.ViewModels
             if (newYear > CurrentYear) newYear = CurrentYear;
 
             SelectedYear = newYear;
+        }
+
+        public void UpdateVisibleCells()
+        {
+            VisibleCells.Clear();
+
+            int centerChunkX = _zoomCenterX / GridConfig.ChunkSize;
+            int centerChunkY = _zoomCenterY / GridConfig.ChunkSize;
+            int half = ZoomLevel / 2;
+
+            for (int offsetY = -half; offsetY <= half; offsetY++)
+            {
+                for (int offsetX = -half; offsetX <= half; offsetX++)
+                {
+                    int chunkX = centerChunkX + offsetX;
+                    int chunkY = centerChunkY + offsetY;
+
+                    if (!IsChunkInBounds(chunkX, chunkY))
+                        continue;
+
+                    var chunk = _gridManager.GetOrCreateChunk(chunkX, chunkY);
+                    if (chunk == null)
+                        continue;
+
+                    for (int y = 0; y < GridConfig.ChunkSize; y++)
+                    {
+                        for (int x = 0; x < GridConfig.ChunkSize; x++)
+                        {
+                            VisibleCells.Add(chunk[x, y]);
+                        }
+                    }
+                }
+            }
         }
 
         private void OnSimulationTick(int year)
