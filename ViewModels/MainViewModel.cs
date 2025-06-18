@@ -4,6 +4,8 @@ using System.Windows.Input;
 using System.Windows.Threading;
 using WorldSimulator.Commands;
 using WorldSimulator.Models.NatureBase;
+using WorldSimulator.Models.World;
+using WorldSimulator.Config;
 
 
 namespace WorldSimulator.ViewModels
@@ -17,6 +19,7 @@ namespace WorldSimulator.ViewModels
         }
         public MainViewModel()
         {
+            WorldMap = new WorldMap(SimulationConfig.MapWidth, SimulationConfig.MapHeight);
             CreateTestDataCommand = new RelayCommand(_ => CreateTestData());
 
             simTimer = new DispatcherTimer
@@ -77,8 +80,37 @@ namespace WorldSimulator.ViewModels
         }
         public ObservableCollection<Nature> Elements { get; set; } = new ObservableCollection<Nature>();
         public ObservableCollection<string> GrowthLogMessages { get; set; } = new ObservableCollection<string>();
-        public ICommand CreateTestDataCommand { get; }
+        public IEnumerable<Cell> AllCells => WorldMap?.Chunks.Cast<Chunk>().SelectMany(chunk => chunk.Cells.Cast<Cell>());
+        public ICommand CreateTestDataCommand { get; }        
         private DispatcherTimer simTimer;
+        private WorldMap _worldMap;
+        public WorldMap WorldMap
+        {
+            get => _worldMap;
+            set
+            {
+                _worldMap = value;
+                OnPropertyChanged(nameof(WorldMap));
+            }
+        }
+        private Cell _selectedCell;
+        public Cell SelectedCell
+        {
+            get => _selectedCell;
+            set
+            {
+                _selectedCell = value;
+                OnPropertyChanged(nameof(SelectedCell));
+                OnPropertyChanged(nameof(SelectedChunkX));
+                OnPropertyChanged(nameof(SelectedChunkY));
+                OnPropertyChanged(nameof(SelectedCellDisplay));
+                OnPropertyChanged(nameof(SelectedChunkDisplay));
+            }
+        }
+        public int SelectedChunkX => SelectedCell != null ? SelectedCell.X / SimulationConfig.ChunkWidth : -1;
+        public int SelectedChunkY => SelectedCell != null ? SelectedCell.Y / SimulationConfig.ChunkHeight : -1;
+        public string SelectedCellDisplay => SelectedCell != null ? $"({SelectedCell.X}, {SelectedCell.Y})" : string.Empty;
+        public string SelectedChunkDisplay => SelectedCell != null ? $"({SelectedChunkX}, {SelectedChunkY})" : string.Empty;
         private int _currentSimYear;
         public int CurrentSimYear
         {
@@ -177,7 +209,6 @@ namespace WorldSimulator.ViewModels
 
             SelectedIndex = 0;
         }
-
         private ObservableCollection<Nature> CreateNatureObservableCollection()
         {
             return new ObservableCollection<Nature>

@@ -10,7 +10,10 @@ namespace WorldSimulator.Views
         public MainWindow()
         {
             InitializeComponent();
-            this.DataContext = new WorldSimulator.ViewModels.MainViewModel();
+            var viewModel = new WorldSimulator.ViewModels.MainViewModel();
+            this.DataContext = viewModel;
+
+            MapViewControl.ViewModel = viewModel;
         }
     }
 }

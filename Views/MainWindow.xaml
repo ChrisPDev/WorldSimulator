@@ -3,12 +3,15 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:WorldSimulator"
+        xmlns:local="clr-namespace:WorldSimulator.Views"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="MainWindow" Height="450" Width="800"
+        WindowState="Maximized"
+        WindowStyle="SingleBorderWindow">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="25"/>
+            <ColumnDefinition Width="*"/>
             <ColumnDefinition Width="*"/>
             <ColumnDefinition Width="*"/>
             <ColumnDefinition Width="25"/>
@@ -43,6 +46,7 @@
                 FontFamily="Tahoma"
                 FontSize="18"
                 FontWeight="Bold"
+                Margin="0,10,0,0"
                 HorizontalContentAlignment="Center"
                 VerticalContentAlignment="Center"
                 ItemsSource="{Binding Elements}"
@@ -52,13 +56,33 @@
             </ComboBox>
 
             <TextBlock
+                Text="Simulation Details"
+                FontFamily="Tahoma"
+                FontSize="20"
+                FontWeight="Bold"
+                Margin="0,10,0,10"
+                TextAlignment="Center"/>
+
+            <TextBlock
                 Text="{Binding CurrentSimYear, StringFormat=Simulation Year: {0}}"
                 FontFamily="Tahoma"
                 FontSize="14"
-                FontWeight="Bold"/>
+                FontWeight="Bold"
+                Margin="0,10,0,10"
+                HorizontalAlignment="Center"/>
+
+            <TextBlock
+                Text="Plant Details"
+                FontFamily="Tahoma"
+                FontSize="20"
+                FontWeight="Bold"
+                Margin="0,10,0,10"
+                TextAlignment="Center"/>
 
             <StackPanel
-                Orientation="Horizontal">
+                Orientation="Horizontal"
+                Margin="0,20,0,0"
+                HorizontalAlignment="Center">
                 <TextBlock
                     Text="Name: "
                     FontFamily="Tahoma"
@@ -71,7 +95,9 @@
                     FontWeight="Bold"/>
             </StackPanel>
             <StackPanel
-                Orientation="Horizontal">
+                Orientation="Horizontal"
+                Margin="0,20,0,0"                
+                HorizontalAlignment="Center">
                 <TextBlock
                     Text="Type: "
                     FontFamily="Tahoma"
@@ -84,7 +110,9 @@
                     FontWeight="Bold"/>
             </StackPanel>
             <StackPanel
-                Orientation="Horizontal">
+                Orientation="Horizontal"
+                Margin="0,20,0,0"
+                HorizontalAlignment="Center">
                 <TextBlock
                     Text="Produce: "
                     FontFamily="Tahoma"
@@ -97,7 +125,9 @@
                     FontWeight="Bold"/>
             </StackPanel>
             <StackPanel
-                Orientation="Horizontal">
+                Orientation="Horizontal"
+                Margin="0,20,0,0"
+                HorizontalAlignment="Center">
                 <TextBlock
                     Text="Age: "
                     FontFamily="Tahoma"
@@ -110,7 +140,9 @@
                     FontWeight="Bold"/>
             </StackPanel>
             <StackPanel
-                Orientation="Horizontal">
+                Orientation="Horizontal"
+                Margin="0,20,0,0"
+                HorizontalAlignment="Center">
                 <TextBlock
                     Text="Lifespan: "
                     FontFamily="Tahoma"
@@ -123,7 +155,9 @@
                     FontWeight="Bold"/>
             </StackPanel>
             <StackPanel
-                Orientation="Horizontal">
+                Orientation="Horizontal"
+                Margin="0,20,0,0"
+                HorizontalAlignment="Center">
                 <TextBlock
                     Text="Stage: "
                     FontFamily="Tahoma"
@@ -135,11 +169,61 @@
                     FontSize="14"
                     FontWeight="Bold"/>
             </StackPanel>
+            <StackPanel
+                x:Name="CellDetailsSP"
+                Margin="0,20,0,0"
+                HorizontalAlignment="Center">
+
+                <TextBlock
+                    Text="Selected Cell Info"
+                    FontFamily="Tahoma"
+                    FontSize="20"
+                    FontWeight="Bold"
+                    Margin="0,10,0,10"
+                    TextAlignment="Center"/>
+                <StackPanel
+                    Orientation="Horizontal"
+                    HorizontalAlignment="Center">
+                    
+                    <TextBlock
+                        Text="Map X, Y: "
+                        FontWeight="Bold"
+                        FontFamily="Tahoma"
+                        FontSize="14"/>
+                    
+                    <TextBlock
+                        Text="{Binding SelectedCellDisplay}"
+                        FontFamily="Tahoma"
+                        FontSize="14"/>
+                </StackPanel>
+
+                <StackPanel
+                    Orientation="Horizontal"
+                    HorizontalAlignment="Center">
+                    
+                    <TextBlock 
+                        Text="Chunk X, Y: "
+                        FontWeight="Bold"
+                        FontFamily="Tahoma"
+                        FontSize="14"/>
+
+                    <TextBlock
+                        Text="{Binding SelectedChunkDisplay}"
+                        FontFamily="Tahoma"
+                        FontSize="14"/>
+                </StackPanel>
+            </StackPanel>
         </StackPanel>
+
+        <local:MapView
+            x:Name="MapViewControl"
+            Grid.Column="2"
+            Grid.Row="1"
+            Margin="10"/>
 
         <ScrollViewer
             x:Name="GrowthLogScrollViewer"
-            Grid.Column="2"
+            Grid.Column="3"
             Grid.Row="1"
             VerticalScrollBarVisibility="Auto"
             HorizontalScrollBarVisibility="Disabled"
