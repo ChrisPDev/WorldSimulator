@@ -1,9 +1,11 @@
-﻿namespace WorldSimulator.Models.Produce
+﻿using WorldSimulator.Models.NatureBase;
+
+namespace WorldSimulator.Models.Produce
 {
     public class Produce
     {
         private static readonly Random rand = new Random();
-        public string Type { get; set; }
+        public ProduceType Type { get; set; }
         public int Age { get; set; } = 0;
         public int DecayAge { get; set; }
 

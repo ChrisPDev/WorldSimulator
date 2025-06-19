@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using WorldSimulator.Models.NatureBase;
 
 namespace WorldSimulator.Models.Produce
 {
@@ -10,7 +6,7 @@ namespace WorldSimulator.Models.Produce
     {
         public Blossom()
         {
-            Type = "Blossom";
+            Type = ProduceType.Blossom;
             DecayAge = SetDecayAge(2, 5);
         }
     }

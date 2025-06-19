@@ -12,11 +12,9 @@ namespace WorldSimulator.Converters
         {
             if (value is int y)
             {
-                //Debug.WriteLine($"[DEBUG] Y-Converter: {System.Convert.ToDouble(y * SimulationConfig.CellSize)}");
-                return System.Convert.ToDouble(y * SimulationConfig.CellSize);
+                return (double)(y * SimulationConfig.CellSize);
             }
 
-            //Debug.WriteLine($"[DEBUG] Y-Converter: 0.0");
             return 0.0;
         }
 

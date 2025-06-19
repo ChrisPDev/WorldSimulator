@@ -1,101 +1,47 @@
 ﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Windows.Input;
-using System.Windows.Threading;
 using WorldSimulator.Commands;
+using WorldSimulator.Config;
 using WorldSimulator.Models.NatureBase;
 using WorldSimulator.Models.World;
-using WorldSimulator.Config;
-using System.Windows.Media;
-using System.Diagnostics;
-
+using WorldSimulator.Utils;
 
 namespace WorldSimulator.ViewModels
 {
     public class MainViewModel : INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler PropertyChanged;
-        protected void OnPropertyChanged(string propertyName)
-        {
+        protected void OnPropertyChanged(string propertyName) =>
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
+
         public MainViewModel()
         {
             WorldMap = new WorldMap(SimulationConfig.MapWidth, SimulationConfig.MapHeight);
             CreateTestDataCommand = new RelayCommand(_ => CreateTestData());
 
-            simTimer = new DispatcherTimer
-            {
-                Interval = TimeSpan.FromSeconds(2)
-            };
-            simTimer.Tick += SimTimer_Tick;
-            simTimer.Start();
-
-            CurrentSimYear = 0;
+            _simulationManager = new SimulationManager(Elements, OnSimulationTick);
+            _selectionManager = new SelectionManager(Elements, GrowthLogMessages);
 
             foreach (var chunk in WorldMap.Chunks)
             {
                 foreach (var cell in chunk.Cells)
                 {
-                    Debug.WriteLine($"[DEBUG] Cell type: {cell.GetType().FullName}");
                     AllCells.Add(cell);
                 }
             }
-
         }
-        private void SimTimer_Tick(object? sender, EventArgs e)
-        {
-            if (Elements == null) return;
 
-            Nature previouslySelected = (SelectedIndex >= 0 && SelectedIndex < Elements.Count) ? Elements[SelectedIndex] : null;
+        public ObservableCollection<Nature> Elements { get; } = new();
+        public ObservableCollection<string> GrowthLogMessages { get; } = new();
+        public ObservableCollection<Cell> AllCells { get; } = new();
+        public ICommand CreateTestDataCommand { get; }
 
-            for (int i = Elements.Count - 1; i >= 0; i--)
-            {
-                Nature element = Elements[i];
+        private readonly SimulationManager _simulationManager;
+        private readonly SelectionManager _selectionManager;
 
-                element.IncrementAge();
-                element.AttemptGrowth();
+        public SelectionManager Selection => _selectionManager;
 
-                if (element is ProduceCapableNature producer)
-                {
-                    producer.AttemptProduceGrowth();
-                    producer.AgeAndDecayProduce();
-                }
-
-                if (element.Age >= element.Lifespan || element.Stage == GrowthStage.None)
-                {
-                    Elements.RemoveAt(i);
-                }
-            }
-
-            if (previouslySelected != null)
-            {
-                int newIndex = Elements.IndexOf(previouslySelected);
-                SelectedIndex = newIndex;
-            }
-            else
-            {
-                SelectedIndex = -1;
-            }
-
-            if (SelectedIndex != null)
-            {
-                OnPropertyChanged(nameof(SelectedPlantName));
-                OnPropertyChanged(nameof(SelectedPlantType));
-                OnPropertyChanged(nameof(SelectedPlantProduce));
-                OnPropertyChanged(nameof(SelectedPlantAge));
-                OnPropertyChanged(nameof(SelectedPlantLifespan));
-                OnPropertyChanged(nameof(SelectedPlantStage));
-            }
-
-            CurrentSimYear++;
-        }
-        public ObservableCollection<Nature> Elements { get; set; } = new ObservableCollection<Nature>();
-        public ObservableCollection<string> GrowthLogMessages { get; set; } = new ObservableCollection<string>();
-        //public IEnumerable<Cell> AllCells => WorldMap?.Chunks.Cast<Chunk>().SelectMany(chunk => chunk.Cells.Cast<Cell>());
-        public ObservableCollection<Cell> AllCells { get; set; } = new ObservableCollection<Cell>();
-        public ICommand CreateTestDataCommand { get; }        
-        private DispatcherTimer simTimer;
         private WorldMap _worldMap;
         public WorldMap WorldMap
         {
@@ -106,109 +52,20 @@ namespace WorldSimulator.ViewModels
                 OnPropertyChanged(nameof(WorldMap));
             }
         }
-        private Cell _selectedCell;
-        public Cell SelectedCell
-        {
-            get => _selectedCell;
-            set
-            {
-                _selectedCell = value;
-                OnPropertyChanged(nameof(SelectedCell));
-                OnPropertyChanged(nameof(SelectedChunkX));
-                OnPropertyChanged(nameof(SelectedChunkY));
-                OnPropertyChanged(nameof(SelectedCellDisplay));
-                OnPropertyChanged(nameof(SelectedChunkDisplay));
-            }
-        }
-        public int SelectedChunkX => SelectedCell != null ? SelectedCell.X / SimulationConfig.ChunkWidth : -1;
-        public int SelectedChunkY => SelectedCell != null ? SelectedCell.Y / SimulationConfig.ChunkHeight : -1;
-        public string SelectedCellDisplay => SelectedCell != null ? $"({SelectedCell.X}, {SelectedCell.Y})" : string.Empty;
-        public string SelectedChunkDisplay => SelectedCell != null ? $"({SelectedChunkX}, {SelectedChunkY})" : string.Empty;
-        private int _currentSimYear;
-        public int CurrentSimYear
-        {
-            get => _currentSimYear;
-            set
-            {
-                _currentSimYear = value;
-                OnPropertyChanged(nameof(CurrentSimYear));
-            }
-        }
-        private int _selectedIndex = -1;
-        public int SelectedIndex
-        {
-            get => _selectedIndex;
-            set
-            {
-                if (_selectedIndex != value)
-                {
-                    _selectedIndex = value;
-                    OnPropertyChanged(nameof(SelectedIndex));
-                    UpdateSelectedNature();
-                }
-            }
-        }
-        private Nature _selectedNature;
-        public Nature SelectedNature
-        {
-            get => _selectedNature;
-            set
-            {
-                if (SelectedNature != value)
-                {
-                    _selectedNature = value;
-                    OnPropertyChanged(nameof(SelectedNature));
-                    OnPropertyChanged(nameof(SelectedPlantName));
-                    OnPropertyChanged(nameof(SelectedPlantType));
-                    OnPropertyChanged(nameof(SelectedPlantProduce));
-                    OnPropertyChanged(nameof(SelectedPlantAge));
-                    OnPropertyChanged(nameof(SelectedPlantLifespan));
-                    OnPropertyChanged(nameof(SelectedPlantStage));
-                }
-            }
-        }
-        public string SelectedPlantName => SelectedNature?.Name ?? string.Empty;
-        public string SelectedPlantType => SelectedNature?.Type ?? string.Empty;
-        public string SelectedPlantProduce => SelectedNature?.GetProduceSummary() ?? string.Empty;
-        public string SelectedPlantAge => SelectedNature != null ? SelectedNature.Age.ToString() : string.Empty;
-        public string SelectedPlantLifespan => SelectedNature != null ? SelectedNature.Lifespan.ToString() : string.Empty;
-        public string SelectedPlantStage => SelectedNature?.Stage.ToString() ?? string.Empty;
-        private void UpdateSelectedNature()
-        {
-            if (SelectedIndex >= 0 && SelectedIndex < Elements.Count)
-            {
-                SelectedNature = Elements[SelectedIndex];
-                DisplayGrowthHistory(SelectedNature);
-            }
-            else
-            {
-                SelectedNature = null;
-                GrowthLogMessages.Clear();
-            }
-        }
-        private void DisplayGrowthHistory(Nature nature)
-        {
-            GrowthLogMessages.Clear();
 
-            if (nature?.LogEntries == null || nature.LogEntries.Count == 0)
-                return;
+        public int CurrentSimYear => _simulationManager?.CurrentSimYear ?? 0;
 
-            foreach (var message in nature.LogEntries)
-            {
-                GrowthLogMessages.Add(message);
-            }
-        }
         public void CreateTestData()
         {
             Elements.Clear();
 
             foreach (var item in CreateNatureObservableCollection())
             {
-                item.Logger = new Utils.NatureLogger(message =>
+                item.Logger = new NatureLogger(message =>
                 {
                     App.Current.Dispatcher.Invoke(() =>
                     {
-                        if (item == SelectedNature)
+                        if (item == _selectionManager.SelectedNature)
                         {
                             GrowthLogMessages.Add(message);
                         }
@@ -216,33 +73,40 @@ namespace WorldSimulator.ViewModels
                 }, item.LogEntries);
 
                 Elements.Add(item);
-
                 item.Logger?.LogPlanted(item.Name, item.Age);
             }
 
-            SelectedIndex = 0;
+            _selectionManager.SelectedIndex = 0;
         }
-        private ObservableCollection<Nature> CreateNatureObservableCollection()
+
+        private static ObservableCollection<Nature> CreateNatureObservableCollection() => new()
         {
-            return new ObservableCollection<Nature>
-            {
-                new Bush("Berry bush", ProduceType.Blossom, ProduceType.Fruit),
-                new Bush("Flower bush", ProduceType.Blossom),
-                new Cactus("Cactus", ProduceType.Blossom, ProduceType.Fruit),
-                new Fern("Fern"),
-                new Flower("Red flower"),
-                new Flower("Yellow flower"),
-                new Flower("Green flower"),
-                new Grass("Short grass"),
-                new Grass("Tall grass"),
-                new Moss ("Moss"),
-                new Mycelium("Mycelium", ProduceType.Fungi),
-                new Tree("Oak tree", ProduceType.None),
-                new Tree("Apple tree", ProduceType.Fruit),
-                new Tree("Hazel tree", ProduceType.Nut),
-                new Tree("Hybrid tree", ProduceType.Fruit, ProduceType.Nut),
-                new Vine("Vine")
-            };
+            new Bush("Berry bush", ProduceType.Blossom, ProduceType.Fruit),
+            new Bush("Flower bush", ProduceType.Blossom),
+            new Cactus("Cactus", ProduceType.Blossom, ProduceType.Fruit),
+            new Fern("Fern"),
+            new Flower("Red flower"),
+            new Flower("Yellow flower"),
+            new Flower("Green flower"),
+            new Grass("Short grass"),
+            new Grass("Tall grass"),
+            new Moss("Moss"),
+            new Mycelium("Mycelium", ProduceType.Fungi),
+            new Tree("Oak tree", ProduceType.None),
+            new Tree("Apple tree", ProduceType.Fruit),
+            new Tree("Hazel tree", ProduceType.Nut),
+            new Tree("Hybrid tree", ProduceType.Fruit, ProduceType.Nut),
+            new Vine("Vine")
+        };
+
+        private void OnSimulationTick()
+        {
+            var selected = _selectionManager.SelectedIndex;
+            _selectionManager.SelectedIndex = (selected >= 0 && selected < Elements.Count) ? Elements.IndexOf(Elements[selected]) : -1;
+
+            _selectionManager.NotifyNaturePropertiesChanged();
+
+            OnPropertyChanged(nameof(CurrentSimYear));
         }
     }
 }

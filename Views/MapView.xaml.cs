@@ -1,9 +1,4 @@
 ﻿using System.Windows.Controls;
-using System.Windows.Media;
-using System.Windows;
-using System.Windows.Ink;
-using System.Windows.Shapes;
-using WorldSimulator.Config;
 using WorldSimulator.Models.World;
 using WorldSimulator.ViewModels;
 
@@ -18,13 +13,23 @@ namespace WorldSimulator.Views
         public MapView()
         {
             InitializeComponent();
+            DataContextChanged += (s, e) =>
+            {
+                ViewModel = DataContext as MainViewModel;
+            };
         }
 
         private void Border_MouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
-            if (sender is Border border && border.DataContext is Cell cell)
+            if (sender is Border border && border.DataContext is Cell cell && ViewModel != null)
             {
-                ViewModel?.GetType().GetProperty("SelectedCell")?.SetValue(ViewModel, cell);
+                foreach (var c in ViewModel.AllCells)
+                {
+                    c.IsSelected = false;
+                }
+
+                cell.IsSelected = true;
+                ViewModel.Selection.SelectedCell = cell;
             }
         }
     }

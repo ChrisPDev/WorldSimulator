@@ -29,5 +29,14 @@ namespace WorldSimulator.Models.World
                 }
             }
         }
+        public Cell GetCell(int x, int y)
+        {
+            if (x < 0 || x >= Cells.GetLength(0) || y < 0 || y >= Cells.GetLength(1))
+            {
+                return null;
+            }
+
+            return Cells[x, y];
+        }
     }
 }

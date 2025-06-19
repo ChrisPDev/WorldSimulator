@@ -1,16 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using WorldSimulator.Models.NatureBase;
 
 namespace WorldSimulator.Models.Produce
 {
-    internal class Fungi : Produce
+    public class Fungi : Produce
     {
         public Fungi()
         {
-            Type = "Fungi";
+            Type = ProduceType.Fungi;
             DecayAge = SetDecayAge(8, 25);
         }
     }

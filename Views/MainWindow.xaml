@@ -8,6 +8,25 @@
         Title="MainWindow" Height="450" Width="800"
         WindowState="Maximized"
         WindowStyle="SingleBorderWindow">
+    <Window.Resources>
+        <Style x:Key="StandardTextStyle" TargetType="TextBlock">
+            <Setter Property="FontFamily" Value="Tahoma"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+        </Style>
+        <Style x:Key="TitleTextStyle" TargetType="TextBlock">
+            <Setter Property="FontFamily" Value="Tahoma"/>
+            <Setter Property="FontSize" Value="20"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Margin" Value="0,7,0,7"/>
+            <Setter Property="TextAlignment" Value="Center"/>
+        </Style>
+        <Style x:Key="HorizontalTextCollectionStyle" TargetType="StackPanel">
+            <Setter Property="Orientation" Value="Horizontal"/>
+            <Setter Property="Margin" Value="0,15,0,0"/>
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+        </Style>
+    </Window.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="25"/>
@@ -51,166 +70,105 @@
                 VerticalContentAlignment="Center"
                 ItemsSource="{Binding Elements}"
                 DisplayMemberPath="Name"
-                SelectedIndex="{Binding SelectedIndex, Mode=TwoWay}">
+                SelectedIndex="{Binding Selection.SelectedIndex, Mode=TwoWay}">
 
             </ComboBox>
 
             <TextBlock
                 Text="Simulation Details"
-                FontFamily="Tahoma"
-                FontSize="20"
-                FontWeight="Bold"
-                Margin="0,10,0,10"
-                TextAlignment="Center"/>
+                Style="{StaticResource TitleTextStyle}"/>
 
             <TextBlock
                 Text="{Binding CurrentSimYear, StringFormat=Simulation Year: {0}}"
-                FontFamily="Tahoma"
-                FontSize="14"
-                FontWeight="Bold"
+                Style="{StaticResource StandardTextStyle}"
                 Margin="0,10,0,10"
                 HorizontalAlignment="Center"/>
 
             <TextBlock
                 Text="Plant Details"
-                FontFamily="Tahoma"
-                FontSize="20"
-                FontWeight="Bold"
-                Margin="0,10,0,10"
-                TextAlignment="Center"/>
+                Style="{StaticResource TitleTextStyle}"/>
 
             <StackPanel
-                Orientation="Horizontal"
-                Margin="0,20,0,0"
-                HorizontalAlignment="Center">
+                Style="{StaticResource HorizontalTextCollectionStyle}">
                 <TextBlock
                     Text="Name: "
-                    FontFamily="Tahoma"
-                    FontSize="14"
-                    FontWeight="Bold"/>
+                    Style="{StaticResource StandardTextStyle}"/>
                 <TextBlock
-                    Text="{Binding SelectedPlantName, Mode=OneWay}"
-                    FontFamily="Tahoma"
-                    FontSize="14"
-                    FontWeight="Bold"/>
+                    Text="{Binding Selection.SelectedPlantName, Mode=OneWay}"
+                    Style="{StaticResource StandardTextStyle}"/>
             </StackPanel>
             <StackPanel
-                Orientation="Horizontal"
-                Margin="0,20,0,0"                
-                HorizontalAlignment="Center">
+                Style="{StaticResource HorizontalTextCollectionStyle}">
                 <TextBlock
                     Text="Type: "
-                    FontFamily="Tahoma"
-                    FontSize="14"
-                    FontWeight="Bold"/>
+                    Style="{StaticResource StandardTextStyle}"/>
                 <TextBlock
-                    Text="{Binding SelectedPlantType, Mode=OneWay}"
-                    FontFamily="Tahoma"
-                    FontSize="14"
-                    FontWeight="Bold"/>
+                    Text="{Binding Selection.SelectedPlantType, Mode=OneWay}"
+                    Style="{StaticResource StandardTextStyle}"/>
             </StackPanel>
             <StackPanel
-                Orientation="Horizontal"
-                Margin="0,20,0,0"
-                HorizontalAlignment="Center">
+                Style="{StaticResource HorizontalTextCollectionStyle}">
                 <TextBlock
                     Text="Produce: "
-                    FontFamily="Tahoma"
-                    FontSize="14"
-                    FontWeight="Bold"/>
+                    Style="{StaticResource StandardTextStyle}"/>
                 <TextBlock
-                    Text="{Binding SelectedPlantProduce, Mode=OneWay}"
-                    FontFamily="Tahoma"
-                    FontSize="14"
-                    FontWeight="Bold"/>
+                    Text="{Binding Selection.SelectedPlantProduce, Mode=OneWay}"
+                    Style="{StaticResource StandardTextStyle}"/>
             </StackPanel>
             <StackPanel
-                Orientation="Horizontal"
-                Margin="0,20,0,0"
-                HorizontalAlignment="Center">
+                Style="{StaticResource HorizontalTextCollectionStyle}">
                 <TextBlock
                     Text="Age: "
-                    FontFamily="Tahoma"
-                    FontSize="14"
-                    FontWeight="Bold"/>
+                    Style="{StaticResource StandardTextStyle}"/>
                 <TextBlock
-                    Text="{Binding SelectedPlantAge, Mode=OneWay}"
-                    FontFamily="Tahoma"
-                    FontSize="14"
-                    FontWeight="Bold"/>
+                    Text="{Binding Selection.SelectedPlantAge, Mode=OneWay}"
+                    Style="{StaticResource StandardTextStyle}"/>
             </StackPanel>
             <StackPanel
-                Orientation="Horizontal"
-                Margin="0,20,0,0"
-                HorizontalAlignment="Center">
+                Style="{StaticResource HorizontalTextCollectionStyle}">
                 <TextBlock
                     Text="Lifespan: "
-                    FontFamily="Tahoma"
-                    FontSize="14"
-                    FontWeight="Bold"/>
+                    Style="{StaticResource StandardTextStyle}"/>
                 <TextBlock
-                    Text="{Binding SelectedPlantLifespan, Mode=OneWay}"
-                    FontFamily="Tahoma"
-                    FontSize="14"
-                    FontWeight="Bold"/>
+                    Text="{Binding Selection.SelectedPlantLifespan, Mode=OneWay}"
+                    Style="{StaticResource StandardTextStyle}"/>
             </StackPanel>
             <StackPanel
-                Orientation="Horizontal"
-                Margin="0,20,0,0"
-                HorizontalAlignment="Center">
+                Style="{StaticResource HorizontalTextCollectionStyle}">
                 <TextBlock
                     Text="Stage: "
-                    FontFamily="Tahoma"
-                    FontSize="14"
-                    FontWeight="Bold"/>
+                    Style="{StaticResource StandardTextStyle}"/>
                 <TextBlock
-                    Text="{Binding SelectedPlantStage, Mode=OneWay}"
-                    FontFamily="Tahoma"
-                    FontSize="14"
-                    FontWeight="Bold"/>
+                    Text="{Binding Selection.SelectedPlantStage, Mode=OneWay}"
+                    Style="{StaticResource StandardTextStyle}"/>
             </StackPanel>
-            <StackPanel
-                x:Name="CellDetailsSP"
-                Margin="0,20,0,0"
-                HorizontalAlignment="Center">
+            <StackPanel>
 
                 <TextBlock
                     Text="Selected Cell Info"
-                    FontFamily="Tahoma"
-                    FontSize="20"
-                    FontWeight="Bold"
-                    Margin="0,10,0,10"
-                    TextAlignment="Center"/>
+                    Style="{StaticResource TitleTextStyle}"/>
                 <StackPanel
-                    Orientation="Horizontal"
-                    HorizontalAlignment="Center">
+                    Style="{StaticResource HorizontalTextCollectionStyle}">
                     
                     <TextBlock
                         Text="Map X, Y: "
-                        FontWeight="Bold"
-                        FontFamily="Tahoma"
-                        FontSize="14"/>
+                        Style="{StaticResource StandardTextStyle}"/>
                     
                     <TextBlock
-                        Text="{Binding SelectedCellDisplay}"
-                        FontFamily="Tahoma"
-                        FontSize="14"/>
+                        Text="{Binding Selection.SelectedCellDisplay}"
+                        Style="{StaticResource StandardTextStyle}"/>
                 </StackPanel>
 
                 <StackPanel
-                    Orientation="Horizontal"
-                    HorizontalAlignment="Center">
+                    Style="{StaticResource HorizontalTextCollectionStyle}">
                     
                     <TextBlock 
                         Text="Chunk X, Y: "
-                        FontWeight="Bold"
-                        FontFamily="Tahoma"
-                        FontSize="14"/>
+                        Style="{StaticResource StandardTextStyle}"/>
 
                     <TextBlock
-                        Text="{Binding SelectedChunkDisplay}"
-                        FontFamily="Tahoma"
-                        FontSize="14"/>
+                        Text="{Binding Selection.SelectedChunkDisplay}"
+                        Style="{StaticResource StandardTextStyle}"/>
                 </StackPanel>
             </StackPanel>
         </StackPanel>
@@ -237,14 +195,10 @@
                     <DataTemplate>
                         <TextBlock
                             Text="{Binding}"
-                            FontFamily="Tahoma"
-                            FontSize="14"
-                            FontWeight="Normal"
-                            Margin="2"/>
+                            Style="{StaticResource StandardTextStyle}"/>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
         </ScrollViewer>
     </Grid>
 </Window>
-

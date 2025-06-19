@@ -1,8 +1,4 @@
-﻿using System.Windows.Controls;
-using System.Xml.Linq;
-using System;
-
-namespace WorldSimulator.Models.NatureBase
+﻿namespace WorldSimulator.Models.NatureBase
 {
     public class Grass : Nature
     {

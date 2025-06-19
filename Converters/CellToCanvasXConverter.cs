@@ -12,11 +12,9 @@ namespace WorldSimulator.Converters
         {
             if (value is int x)
             {
-                //Debug.WriteLine($"[DEBUG] X-Converter: {System.Convert.ToDouble(x * SimulationConfig.CellSize)}");
-                return System.Convert.ToDouble(x * SimulationConfig.CellSize);
+                return (double)(x * SimulationConfig.CellSize);
             }
 
-            //Debug.WriteLine($"[DEBUG] X-Converter: 0.0");
             return 0.0;
         }
 

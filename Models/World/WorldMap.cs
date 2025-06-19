@@ -4,22 +4,26 @@ namespace WorldSimulator.Models.World
 {
     public class WorldMap
     {
+        private readonly int _chunkWidth;
+        private readonly int _chunkHeight;
         public int MapWidth { get; }
         public int MapHeight { get; }
         public int ChunkWidth { get; }
         public int ChunkHeight { get; }
-
         public Chunk[,] Chunks { get; }
-
         public WorldMap(int mapWidth, int mapHeight)
         {
             MapWidth = mapWidth;
             MapHeight = mapHeight;
-            int chunkWidth = SimulationConfig.ChunkWidth;
-            int chunkHeight = SimulationConfig.ChunkHeight;
 
-            int chunksX = mapWidth / chunkWidth;
-            int chunksY = mapHeight / chunkHeight;
+            _chunkWidth = SimulationConfig.ChunkWidth;
+            _chunkHeight = SimulationConfig.ChunkHeight;
+
+            ChunkWidth = _chunkWidth;
+            ChunkHeight = _chunkHeight;
+
+            int chunksX = mapWidth / _chunkWidth;
+            int chunksY = mapHeight / _chunkHeight;
 
             Chunks = new Chunk[chunksX, chunksY];
 
@@ -31,6 +35,7 @@ namespace WorldSimulator.Models.World
                 }
             }
         }
+
         public Chunk GetChunk(int chunkX, int chunkY)
         {
             if (chunkX < 0 || chunkX >= Chunks.GetLength(0) || chunkY < 0 || chunkY >= Chunks.GetLength(1))
@@ -42,8 +47,8 @@ namespace WorldSimulator.Models.World
         }
         public Cell GetCell(int worldX, int worldY)
         {
-            int chunkX = worldX / ChunkWidth;
-            int chunkY = worldY / ChunkHeight;
+            int chunkX = worldX / _chunkWidth;
+            int chunkY = worldY / _chunkHeight;
 
             Chunk chunk = GetChunk(chunkX, chunkY);
 
@@ -52,10 +57,11 @@ namespace WorldSimulator.Models.World
                 return null;
             }
 
-            int localX = worldX % ChunkWidth;
-            int localY = worldY % ChunkHeight;
+            int localX = worldX % _chunkWidth;
+            int localY = worldY % _chunkHeight;
 
-            return chunk.Cells[localX, localY];
+            return chunk.GetCell(localX, localY);
         }
+
     }
 }

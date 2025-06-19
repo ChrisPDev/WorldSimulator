@@ -1,12 +1,4 @@
 ﻿using WorldSimulator.Models.Produce;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Controls;
-using System.Xml.Linq;
-using WorldSimulator.Models.NatureBase;
 
 namespace WorldSimulator.Models.NatureBase
 {
@@ -21,7 +13,7 @@ namespace WorldSimulator.Models.NatureBase
         {
             if (ProduceItems.Count == 0) return "None";
 
-            var summary = SupportedProduceTypes.Select(type => $"{type}s ({ProduceItems.Count(p => p.Type == type.ToString())} / {_produceLimit})");
+            var summary = SupportedProduceTypes.Select(type => $"{type}s ({ProduceItems.Count(p => p.Type == type)} / {_produceLimit})");
             return string.Join(", ", summary);
         }
         public virtual void AttemptProduceGrowth()
@@ -30,7 +22,7 @@ namespace WorldSimulator.Models.NatureBase
 
             foreach (var type in SupportedProduceTypes)
             {
-                if (ProduceItems.Count(p => p.Type == type.ToString()) >= _produceLimit)
+                if (ProduceItems.Count(p => p.Type == type) >= _produceLimit)
                 {
                     continue;
                 }
@@ -63,7 +55,7 @@ namespace WorldSimulator.Models.NatureBase
 
                 if (ProduceItems[i].Age >= ProduceItems[i].DecayAge)
                 {
-                    string type = ProduceItems[i].Type.ToLower();
+                    string type = ProduceItems[i].Type.ToString().ToLower();
                     ProduceItems.RemoveAt(i);
                     GrowthHistory.Add((Age, GrowthStage.Produced));
                     Logger?.LogDecayed(Name, type, Age);
