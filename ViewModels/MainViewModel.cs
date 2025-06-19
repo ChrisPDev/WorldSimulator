@@ -6,6 +6,8 @@ using WorldSimulator.Commands;
 using WorldSimulator.Models.NatureBase;
 using WorldSimulator.Models.World;
 using WorldSimulator.Config;
+using System.Windows.Media;
+using System.Diagnostics;
 
 
 namespace WorldSimulator.ViewModels
@@ -30,6 +32,16 @@ namespace WorldSimulator.ViewModels
             simTimer.Start();
 
             CurrentSimYear = 0;
+
+            foreach (var chunk in WorldMap.Chunks)
+            {
+                foreach (var cell in chunk.Cells)
+                {
+                    Debug.WriteLine($"[DEBUG] Cell type: {cell.GetType().FullName}");
+                    AllCells.Add(cell);
+                }
+            }
+
         }
         private void SimTimer_Tick(object? sender, EventArgs e)
         {
@@ -80,7 +92,8 @@ namespace WorldSimulator.ViewModels
         }
         public ObservableCollection<Nature> Elements { get; set; } = new ObservableCollection<Nature>();
         public ObservableCollection<string> GrowthLogMessages { get; set; } = new ObservableCollection<string>();
-        public IEnumerable<Cell> AllCells => WorldMap?.Chunks.Cast<Chunk>().SelectMany(chunk => chunk.Cells.Cast<Cell>());
+        //public IEnumerable<Cell> AllCells => WorldMap?.Chunks.Cast<Chunk>().SelectMany(chunk => chunk.Cells.Cast<Cell>());
+        public ObservableCollection<Cell> AllCells { get; set; } = new ObservableCollection<Cell>();
         public ICommand CreateTestDataCommand { get; }        
         private DispatcherTimer simTimer;
         private WorldMap _worldMap;
