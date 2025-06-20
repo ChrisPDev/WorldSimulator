@@ -159,17 +159,33 @@ High-level explanation of how the components interact.
 
 ## 📂 Models > World
 
+### `BaseTerrainType.cs`
+
+- **Purpose**: Defines the fundamental terrain types that can exist on the planet's surface.
+- **Members**:
+  - `Water`: Represents any water-covered terrain (e.g., ocean, lake).
+  - `Land`: Represents any land-covered terrain (e.g., soil, sand).
+- **Usage**: Used in `Cell` to define the base terrain type of each grid cell.
+- **Notes**: Designed to be extended with subtypes in the future (e.g., Saltwater, Gravel).
+
+---
+
 ### `Cell.cs`
 
 - **Purpose**: Represents a single cell in the simulation grid.
 - **Key Members**:
   - `X`, `Y`: World coordinates of the cell.
   - `IsSelected`: Indicates whether the cell is selected in the UI.
-  - `BackgroundBrush`: The fill color of the cell.
+  - `TerrainType`: The base terrain type of the cell (e.g., Water or Land).
+  - `SubTerrainType`: The specific terrain subtype (e.g., Saltwater, Soil).
+  - `BackgroundBrush`: The fill color of the cell, based on terrain type.
   - `BorderBrush`: Dynamically changes based on selection state.
   - `ToString()`: Returns a string representation of the cell's coordinates.
 - **Usage**: Used in the UI to represent and interact with individual grid cells.
-- **Notes**: Implements `INotifyPropertyChanged` for WPF data binding.
+- **Notes**:
+  - Implements `INotifyPropertyChanged` for WPF data binding.
+  - Terrain is initialized to `Water` and `Saltwater` by default.
+  - `BackgroundBrush` reflects terrain visually and updates when terrain changes.
 
 ---
 
@@ -184,6 +200,31 @@ High-level explanation of how the components interact.
 - **Notes**:
   - Cells are initialized with correct world coordinates.
   - `GetCell` adds encapsulation and bounds checking.
+
+---
+
+### `Planet.cs`
+- **Purpose**: Represents a static planet that contains the simulation's `WorldMap`.
+- **Key Members**:
+  - `Name`: The name of the planet.
+  - `WorldMap`: The 2D grid-based world map associated with the planet.
+  - `TotalCells`: A derived property that returns the total number of cells in the world (`MapWidth * MapHeight`).
+- **Usage**: Used to encapsulate the world map and provide a planetary context for the simulation.
+- **Notes**:
+  - The planet is currently static (no orbit, tilt, or rotation).
+  - Designed to be simple and extensible for future planetary features.
+
+---
+
+### `SubTerrainType.cs`
+
+- **Purpose**: Defines more specific terrain types that fall under the base terrain categories.
+- **Members**:
+  - `Saltwater`, `Freshwater`: Subtypes of `Water`.
+  - `Soil`, `Sand`, `Gravel`: Subtypes of `Land`.
+  - `Unknown`: Fallback for undefined or transitional terrain.
+- **Usage**: Used in `Cell` to provide more detailed terrain classification.
+- **Notes**: Can be used for biome generation, resource placement, or visual styling.
 
 ---
 
@@ -296,9 +337,10 @@ High-level explanation of how the components interact.
 
 ### `MainViewModel.cs`
 
-- **Purpose**: Acts as the central ViewModel in the MVVM architecture. Manages the simulation world, nature elements, selection, and logging.
+- **Purpose**: Acts as the central ViewModel in the MVVM architecture. Manages the simulation world, nature elements, selection, logging, and now the planetary context.
 - **Key Members**:
   - `WorldMap`: The simulation grid composed of chunks and cells.
+  - `Planet`: Represents the planet that contains the simulation's `WorldMap`.
   - `Elements`: Observable collection of all nature entities in the simulation.
   - `GrowthLogMessages`: Logs growth and produce events for the selected entity.
   - `AllCells`: Flattened list of all cells in the world for UI binding.
@@ -313,6 +355,8 @@ High-level explanation of how the components interact.
   - Uses `RelayCommand` for UI interaction.
   - Integrates with `SimulationManager` and `SelectionManager` for simulation logic.
   - Logging is routed through `NatureLogger` and filtered by selection.
+  - The `Planet` property provides a high-level container for the world and can be extended with planetary features in the future.
+
 
 ---
 
@@ -326,6 +370,8 @@ High-level explanation of how the components interact.
   - `SelectedPlantName`, `SelectedPlantType`, `SelectedPlantProduce`, `SelectedPlantAge`, `SelectedPlantLifespan`, `SelectedPlantStage`: Exposed properties for UI binding.
   - `SelectedChunkX`, `SelectedChunkY`: Chunk coordinates of the selected cell.
   - `SelectedCellDisplay`, `SelectedChunkDisplay`: Formatted display strings for UI.
+  - `SelectedCellBaseTerrain`: The base terrain type of the selected cell.
+  - `SelectedCellSubTerrain`: The sub-terrain type of the selected cell.
   - `UpdateSelectedNature()`: Updates the selected nature entity and refreshes the growth log.
   - `UpdateGrowthLogMessages(Nature)`: Populates the log messages for the selected entity.
   - `NotifyNaturePropertiesChanged()`: Notifies the UI of changes to selected nature properties.
@@ -333,6 +379,8 @@ High-level explanation of how the components interact.
 - **Notes**:
   - Implements `INotifyPropertyChanged` for WPF data binding.
   - Designed to be reactive to selection changes in both nature and cell contexts.
+  - Terrain info is exposed for display in the UI.
+
 
 ---
 
@@ -359,7 +407,11 @@ High-level explanation of how the components interact.
     - `TestComboBoxCB`: Dropdown to select a nature entity from the simulation (`Elements`).
     - `Simulation Details`: Displays the current simulation year (`CurrentSimYear`).
     - `Plant Details`: Shows selected plant's name, type, produce, age, lifespan, and growth stage using `Selection` bindings.
-    - `Selected Cell Info`: Displays the selected cell's map and chunk coordinates.
+    - `Selected Cell Info`: Displays the selected cell's map and chunk coordinates, as well as terrain type.
+      - `Map X, Y`: Bound to `Selection.SelectedCellDisplay`.
+      - `Chunk X, Y`: Bound to `Selection.SelectedChunkDisplay`.
+      - `Base Terrain`: Bound to `Selection.SelectedCellBaseTerrain`.
+      - `Sub Terrain`: Bound to `Selection.SelectedCellSubTerrain`.
   - **Center Panel** (`Grid.Column="2"`):
     - `MapViewControl`: Custom control (`MapView.xaml`) for rendering the simulation grid.
   - **Right Panel** (`Grid.Column="3"`):
@@ -371,11 +423,13 @@ High-level explanation of how the components interact.
     - `HorizontalTextCollectionStyle`: Used for horizontally aligned `StackPanel`s with label-value pairs.
 - **Bindings**:
   - DataContext is expected to be `MainViewModel`.
-  - Uses nested property bindings for `Selection.SelectedPlantName`, `Selection.SelectedCellDisplay`, etc.
+  - Uses nested property bindings for `Selection.SelectedPlantName`, `Selection.SelectedCellDisplay`, `Selection.SelectedCellBaseTerrain`, etc.
 - **Notes**:
   - Layout is structured using a `Grid` with three main columns and margin columns on each side.
   - Styles significantly reduce repetition and improve maintainability.
   - UI is designed for clarity and accessibility, with bold headers and centered alignment.
+
+---
 
 ### `MainWindow.xaml.cs`
 
@@ -387,6 +441,8 @@ High-level explanation of how the components interact.
 - **Notes**:
   - Keeps logic minimal and delegates all behavior to the ViewModel.
   - Ensures that both the main window and the map view operate on the same simulation state.
+
+---
 
 ### `MapView.xaml`
 
@@ -407,6 +463,8 @@ High-level explanation of how the components interact.
   - Uses `SimulationConfig.CellSize` to ensure consistent sizing across the simulation.
   - Designed for performance and scalability with large grids.
   - The control expects its `ViewModel` to be set externally (e.g., from `MainWindow.xaml.cs`).
+
+---
 
 ### `MapView.xaml.cs`
 

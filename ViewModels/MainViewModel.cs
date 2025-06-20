@@ -18,6 +18,7 @@ namespace WorldSimulator.ViewModels
         public MainViewModel()
         {
             WorldMap = new WorldMap(SimulationConfig.MapWidth, SimulationConfig.MapHeight);
+            Planet = new Planet("Gaia", WorldMap);
             CreateTestDataCommand = new RelayCommand(_ => CreateTestData());
 
             _simulationManager = new SimulationManager(Elements, OnSimulationTick);
@@ -50,6 +51,16 @@ namespace WorldSimulator.ViewModels
             {
                 _worldMap = value;
                 OnPropertyChanged(nameof(WorldMap));
+            }
+        }
+        private Planet _planet;
+        public Planet Planet
+        {
+            get => _planet;
+            set
+            {
+                _planet = value;
+                OnPropertyChanged(nameof(Planet));
             }
         }
 

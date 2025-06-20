@@ -80,6 +80,8 @@ namespace WorldSimulator.ViewModels
         public int SelectedChunkY => SelectedCell?.Y / SimulationConfig.ChunkHeight ?? -1;
         public string SelectedCellDisplay => SelectedCell != null ? $"({SelectedCell.X}, {SelectedCell.Y})" : string.Empty;
         public string SelectedChunkDisplay => SelectedCell != null ? $"({SelectedChunkX}, {SelectedChunkY})" : string.Empty;
+        public string SelectedCellBaseTerrain => SelectedCell != null ? SelectedCell.TerrainType.ToString() : "None";
+        public string SelectedCellSubTerrain => SelectedCell != null ? SelectedCell.SubTerrainType.ToString() : "None";
 
         public void UpdateSelectedNature()
         {
@@ -117,6 +119,8 @@ namespace WorldSimulator.ViewModels
             OnPropertyChanged(nameof(SelectedPlantAge));
             OnPropertyChanged(nameof(SelectedPlantLifespan));
             OnPropertyChanged(nameof(SelectedPlantStage));
+            OnPropertyChanged(nameof(SelectedCellBaseTerrain));
+            OnPropertyChanged(nameof(SelectedCellSubTerrain));
         }
     }
 }

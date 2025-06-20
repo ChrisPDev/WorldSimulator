@@ -158,7 +158,6 @@
                         Text="{Binding Selection.SelectedCellDisplay}"
                         Style="{StaticResource StandardTextStyle}"/>
                 </StackPanel>
-
                 <StackPanel
                     Style="{StaticResource HorizontalTextCollectionStyle}">
                     
@@ -170,6 +169,29 @@
                         Text="{Binding Selection.SelectedChunkDisplay}"
                         Style="{StaticResource StandardTextStyle}"/>
                 </StackPanel>
+                <StackPanel
+                    Style="{StaticResource HorizontalTextCollectionStyle}">
+                    
+                    <TextBlock
+                        Text="Base Terrain: "
+                        Style="{StaticResource StandardTextStyle}"/>
+                    
+                    <TextBlock
+                        Text="{Binding Selection.SelectedCellBaseTerrain}"
+                        Style="{StaticResource StandardTextStyle}"/>
+                </StackPanel>
+                <StackPanel
+                    Style="{StaticResource HorizontalTextCollectionStyle}">
+                    
+                    <TextBlock
+                        Text="Sub Terrain: "
+                        Style="{StaticResource StandardTextStyle}"/>
+                    
+                    <TextBlock
+                        Text="{Binding Selection.SelectedCellSubTerrain}"
+                        Style="{StaticResource StandardTextStyle}"/>
+                </StackPanel>
+
             </StackPanel>
         </StackPanel>
 
